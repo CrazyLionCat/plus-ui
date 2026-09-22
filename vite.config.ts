@@ -1,5 +1,5 @@
 import { defineConfig, loadEnv } from 'vite';
-import createPlugins from './vite/plugins';
+import createPlugins from './vite/plugins/index.js';
 import autoprefixer from 'autoprefixer'; // css自动添加兼容性前缀
 
 export default defineConfig(({ mode, command }) => {
