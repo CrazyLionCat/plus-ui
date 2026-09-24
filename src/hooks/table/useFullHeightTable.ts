@@ -18,6 +18,7 @@ interface TableState {
   bodyMaxHeight: string;
   bodyOverflowY: string;
   bodyOverflowX: string;
+  appliedHeight?: number;
 }
 
 const tableStates = new WeakMap<HTMLElement, TableState>();
@@ -70,11 +71,6 @@ const getTableComponent = (table: HTMLElement) => {
   return getTableComponentHost(table)?.proxy;
 };
 
-const getPageOverflowHeight = () => {
-  const documentElement = document.documentElement;
-  return Math.max(0, documentElement.scrollHeight - documentElement.clientHeight);
-};
-
 const rememberTableState = (table: HTMLElement) => {
   if (tableStates.has(table)) return;
 
@@ -112,14 +108,22 @@ const resetAllTables = () => {
 };
 
 const calculateTableHeight = (table: HTMLElement) => {
-  const rect = table.getBoundingClientRect();
+  let layoutTop = 0;
+  let node: HTMLElement | null = table;
+  while (node) {
+    layoutTop += node.offsetTop;
+    node = node.offsetParent as HTMLElement | null;
+  }
+
+  // Keep the calculation tied to the page layout. Using the current scroll
+  // position here would make scrolling change the table height again.
   const viewportBottom = window.innerHeight;
   const followingHeight = getFollowingHeight(table);
   const bottomPadding = getBottomPadding(table);
   const bottomOffset = window.innerWidth < 768 ? 28 : 32;
   const minHeight = window.innerWidth < 768 ? 220 : 260;
 
-  return Math.max(minHeight, Math.floor(viewportBottom - rect.top - followingHeight - bottomPadding - bottomOffset));
+  return Math.max(minHeight, Math.floor(viewportBottom - layoutTop - followingHeight - bottomPadding - bottomOffset));
 };
 
 const applyTableHeightValue = (table: HTMLElement, tableHeight: number) => {
@@ -153,14 +157,11 @@ const applyTableHeightValue = (table: HTMLElement, tableHeight: number) => {
 const applyTableHeight = (table: HTMLElement) => {
   rememberTableState(table);
 
-  const minHeight = window.innerWidth < 768 ? 220 : 260;
   const tableHeight = calculateTableHeight(table);
+  const state = tableStates.get(table);
+  if (state?.appliedHeight === tableHeight) return;
+  if (state) state.appliedHeight = tableHeight;
   applyTableHeightValue(table, tableHeight);
-
-  const overflowHeight = getPageOverflowHeight();
-  if (overflowHeight > 0 && tableHeight > minHeight) {
-    applyTableHeightValue(table, Math.max(minHeight, tableHeight - overflowHeight - 4));
-  }
 };
 
 const canManageTable = (table: HTMLElement) => {
@@ -195,7 +196,6 @@ export function useFullHeightTable() {
     const nextElements = new Set<Element>([
       ...Array.from(document.querySelectorAll('.app-main, .app-main .p-2, .app-main .table-panel')),
       ...Array.from(document.querySelectorAll('.app-main .search-panel, .app-main .tree-panel-shell')),
-      ...getManagedTables()
     ]);
 
     observedElements.forEach(element => {
