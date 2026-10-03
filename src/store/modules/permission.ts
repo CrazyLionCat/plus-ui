@@ -9,6 +9,7 @@ import auth from '@/plugins/auth';
 import router, { constantRoutes, dynamicRoutes } from '@/router';
 import store from '@/store';
 import { createCustomNameComponent } from '@/utils/createCustomNameComponent';
+import { filterTemplateRoutes } from '@/utils/template-scope';
 
 // 匹配views里面所有的.vue文件，预建查找表避免每次 O(n) 扫描
 const modules = import.meta.glob('./../../views/**/*.vue');
@@ -54,7 +55,7 @@ export const usePermissionStore = defineStore('permission', () => {
   };
   const generateRoutes = async (): Promise<RouteRecordRaw[]> => {
     const res = await getRouters();
-    const data = Array.isArray(res.data) ? res.data : [];
+    const data = filterTemplateRoutes(Array.isArray(res.data) ? res.data : [], view => viewModuleMap.has(view));
     const sdata = structuredClone(data);
     const rdata = structuredClone(data);
     const defaultData = structuredClone(data);

@@ -20,6 +20,7 @@ export const NOTICE_GROUP = {
 } as const;
 
 export interface PushMessagePayload {
+  category?: string;
   messageId?: string | number;
   type?: string;
   source?: string;
@@ -37,6 +38,7 @@ export const parsePushMessage = (raw: string): PushMessagePayload => {
     return {
       type: payload.type ?? PUSH_MESSAGE_TYPE.MESSAGE,
       source: payload.source ?? 'backend',
+      category: payload.category,
       messageId: payload.messageId,
       message: payload.message ?? '',
       data: payload.data ?? null,
@@ -57,7 +59,11 @@ export const parsePushMessage = (raw: string): PushMessagePayload => {
 };
 
 export const shouldAppendNotice = (payload: PushMessagePayload) => {
-  return MESSAGE_CENTER_TYPES.has(payload.type ?? PUSH_MESSAGE_TYPE.MESSAGE);
+  return (
+    payload.source !== PUSH_MESSAGE_SOURCE.WORKFLOW &&
+    payload.category !== NOTICE_GROUP.WORKFLOW &&
+    MESSAGE_CENTER_TYPES.has(payload.type ?? PUSH_MESSAGE_TYPE.MESSAGE)
+  );
 };
 
 export const resolveNoticeGroup = (payload: PushMessagePayload) => {

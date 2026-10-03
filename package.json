@@ -2,14 +2,13 @@
   "$schema": "https://json.schemastore.org/package",
   "name": "ruoyi-vue-plus",
   "version": "6.0.0",
-  "description": "RuoYi-Vue-Plus后台管理系统",
+  "description": "RuoYi-Vue-Plus企业后台基础前端模板",
   "license": "MIT",
   "author": "LionLi",
   "repository": {
     "type": "git",
     "url": "https://gitee.com/JavaLionLi/plus-ui.git"
   },
-  "packageManager": "pnpm@10.34.5",
   "type": "module",
   "scripts": {
     "build": "vite build --mode production",
@@ -78,5 +77,6 @@
   "engines": {
     "node": ">=20.19.0",
     "pnpm": ">=10.0.0"
-  }
+  },
+  "packageManager": "pnpm@10.34.5"
 }

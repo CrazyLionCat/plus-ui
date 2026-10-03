@@ -9,6 +9,8 @@ description: 在 plus-ui 前端项目中按真实 Vue 3 + TypeScript + Element P
 
 ## 项目基线
 
+当前基础模板的 Demo、AI、工作流和代码生成页面已保存在 `extensions/<module>/src/views/`；示例 API 的 Demo、AI、代码生成源码也保存在对应 `extensions` 目录。作为开发参考直接读取归档源码即可。新业务代码仍写入 `src/`；可复用组件及 workflow API/types 保留在原位置。恢复运行条件见 `extensions/README.md`。
+
 - 基线仓库：`https://gitee.com/JavaLionLi/plus-ui`
 - 默认分支：`6.X-Vue`
 - 远端引用必须同时标记仓库、分支和文件路径，例如 `https://gitee.com/JavaLionLi/plus-ui/blob/6.X-Vue/gen/index.vue.ftl` 或 `branch=6.X-Vue, path=gen/index.vue.ftl`。
@@ -20,8 +22,8 @@ description: 在 plus-ui 前端项目中按真实 Vue 3 + TypeScript + Element P
 1. 判断任务类型：新增标准 CRUD、树表、已有页面增强、复杂业务页、只补 API/types。
 2. 按“文档读取规则”读取必要 reference，不一次性展开所有资料。
 3. 阅读目标目录下最近似的真实代码：
-   - 标准单表优先看 `src/views/demo/demo/index.vue`、`src/api/demo/demo/*`。
-   - 树表优先看 `src/views/demo/tree/index.vue`、`src/views/workflow/category/index.vue`。
+   - 标准单表优先看 `extensions/demo/src/views/demo/demo/index.vue`、`extensions/demo/src/api/demo/demo/*`。
+   - 树表优先看 `extensions/demo/src/views/demo/tree/index.vue`、`extensions/workflow/src/views/workflow/category/index.vue`。
    - 系统复杂页优先看 `src/views/system/user/index.vue`、`system/role`、`system/post`、`system/config`。
    - workflow 业务页优先看 `src/views/workflow/*` 同类页面。
 4. 新增标准页面前，对照项目内模板确认基础骨架：
@@ -93,11 +95,11 @@ description: 在 plus-ui 前端项目中按真实 Vue 3 + TypeScript + Element P
 
 ### 1. 标准单表 CRUD
 
-以 `gen/index.vue.ftl`、`gen/api.ts.ftl`、`gen/types.ts.ftl` 和 `src/views/demo/demo/index.vue` 为主要起点，补齐列表、搜索、分页、新增、编辑、删除、导出、权限、类型和验证。
+以 `gen/index.vue.ftl`、`gen/api.ts.ftl`、`gen/types.ts.ftl` 和 `extensions/demo/src/views/demo/demo/index.vue` 为主要起点，补齐列表、搜索、分页、新增、编辑、删除、导出、权限、类型和验证。
 
 ### 2. 树表 CRUD
 
-以 `src/views/demo/tree/index.vue`、`src/views/workflow/category/index.vue` 为主要起点。列表接口通常返回数组而不是 `PageResult`，页面使用 `handleTree`、`useTreeTableExpand`，`Query` 通常不继承 `PageQuery`。
+以 `extensions/demo/src/views/demo/tree/index.vue`、`extensions/workflow/src/views/workflow/category/index.vue` 为主要起点。列表接口通常返回数组而不是 `PageResult`，页面使用 `handleTree`、`useTreeTableExpand`，`Query` 通常不继承 `PageQuery`。
 
 ### 3. 强业务页面
 

@@ -1,4 +1,25 @@
-## 平台简介
+# 企业后台基础前端模板
+
+默认提供账号密码登录、用户与组织管理、角色菜单和数据权限、客户端管理、字典参数、通知公告、文件与 OSS 配置、在线用户、日志、缓存和个人中心。
+
+自助注册、第三方登录和社交绑定已移除。Demo、AI、工作流、三个外部控制台和代码生成页面保存在 [extensions](extensions/README.md)，不进入默认前端。可复用组件及必要 API/types、样式和依赖仍保留，目前不引用。
+
+配套后端使用本项目已精简版本 `bba5e45e1` 或包含该改造的后续版本。原后端本地 checkout 可能仍是旧版本，应核对实际启动的代码与默认模块范围，不能直接使用完整上游后端作为本模板验收依据。
+
+开发代理在 vite.config.ts，默认指向 localhost:8080；核对 .env 的客户端 ID、请求加密及消息推送配置与实际后端一致。已有数据库的旧菜单会被前端过滤，这不代表数据库授权已经迁移。
+
+验证命令：
+
+```bash
+pnpm build
+pnpm exec vue-tsc --noEmit
+pnpm lint
+pnpm exec vitest run
+```
+
+首次类型检查前先构建一次，生成未纳入 Git 的自动导入声明。组件调用需要的闲置 vxe 和高亮全局注册，按 [恢复说明](extensions/README.md) 显式恢复。业务开发可参考根目录 gen/*.ftl、extensions/demo 内单表与树表源码，以及当前 system 页面和公共 hooks。
+
+## 上游平台简介
 
 - 本仓库为前端技术栈 [Vue3](https://v3.cn.vuejs.org) + [TS](https://www.typescriptlang.org/) + [Element Plus](https://element-plus.org/zh-CN) + [Vite](https://cn.vitejs.dev) 版本。
 - 官方项目: 基于 React + Ant Design 版本前端项目 [plus-ui-react](https://gitee.com/JavaLionLi/plus-ui/tree/6.X-React/)
@@ -32,7 +53,7 @@ pnpm build:prod
 # 前端访问地址 http://localhost:80
 ```
 
-## 本框架与RuoYi的业务差异
+## 上游功能参考（不代表本模板默认启用）
 
 | 业务         | 功能说明                                                      | 本框架 | RuoYi                         |
 | ------------ | ------------------------------------------------------------- | ------ | ----------------------------- |
@@ -59,18 +80,18 @@ pnpm build:prod
 
 ## 演示图例
 
-|                                                                                            |                                                                                            |
-|--------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------|
-| ![输入图片说明](https://foruda.gitee.com/images/1780299033689126697/868ef1ea_1766278.png "屏幕截图") | ![输入图片说明](https://foruda.gitee.com/images/1780299052163404649/8d94165d_1766278.png "屏幕截图") |
-| ![输入图片说明](https://foruda.gitee.com/images/1780299074949590692/27f5bfb5_1766278.png "屏幕截图") | ![输入图片说明](https://foruda.gitee.com/images/1780299108816841231/619a7c57_1766278.png "屏幕截图") |
-| ![输入图片说明](https://foruda.gitee.com/images/1780299089818500856/862ba805_1766278.png "屏幕截图") | ![输入图片说明](https://foruda.gitee.com/images/1780299173744267947/95cb0cd3_1766278.png "屏幕截图") |
-| ![输入图片说明](https://foruda.gitee.com/images/1780299193694706123/28257dc1_1766278.png "屏幕截图") | ![输入图片说明](https://foruda.gitee.com/images/1780299147525013883/ebcd9dfe_1766278.png "屏幕截图") |
-| ![输入图片说明](https://foruda.gitee.com/images/1780299220007761523/dc7e27c9_1766278.png "屏幕截图") | ![输入图片说明](https://foruda.gitee.com/images/1780299235966983519/35b047e1_1766278.png "屏幕截图") |
-| ![输入图片说明](https://foruda.gitee.com/images/1780299250884681522/e5731314_1766278.png "屏幕截图") | ![输入图片说明](https://foruda.gitee.com/images/1780299267028602229/230d5428_1766278.png "屏幕截图") |
-| ![输入图片说明](https://foruda.gitee.com/images/1780299293149732467/19abcf6c_1766278.png "屏幕截图") | ![输入图片说明](https://foruda.gitee.com/images/1780299311267192779/e665c668_1766278.png "屏幕截图") |
-| ![输入图片说明](https://foruda.gitee.com/images/1780299327888096947/283a177f_1766278.png "屏幕截图") | ![输入图片说明](https://foruda.gitee.com/images/1780299348897579356/caac864e_1766278.png "屏幕截图") |
-| ![输入图片说明](https://foruda.gitee.com/images/1780299376680669014/452585fb_1766278.png "屏幕截图") | ![输入图片说明](https://foruda.gitee.com/images/1780299843158459866/ceebbb63_1766278.png "屏幕截图") |
-| ![输入图片说明](https://foruda.gitee.com/images/1780299432356918392/07abdf6a_1766278.png "屏幕截图") | ![输入图片说明](https://foruda.gitee.com/images/1780299465584172180/a2b2be12_1766278.png "屏幕截图") |
-| ![输入图片说明](https://foruda.gitee.com/images/1780299491233431530/d88bfa35_1766278.png "屏幕截图") | ![输入图片说明](https://foruda.gitee.com/images/1780299513358913413/f2f90032_1766278.png "屏幕截图") |
-| ![输入图片说明](https://foruda.gitee.com/images/1780299527419238776/549cb852_1766278.png "屏幕截图") | ![输入图片说明](https://foruda.gitee.com/images/1780299553918371792/43bd3bff_1766278.png "屏幕截图") |
-| ![输入图片说明](https://foruda.gitee.com/images/1780299586662735625/1107a3ee_1766278.png "屏幕截图") | ![输入图片说明](https://foruda.gitee.com/images/1780299613342135530/526d7859_1766278.png "屏幕截图") |
+|                                                                                                      |                                                                                                      |
+| ---------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| ![输入图片说明](https://foruda.gitee.com/images/1780299033689126697/868ef1ea_1766278.png '屏幕截图') | ![输入图片说明](https://foruda.gitee.com/images/1780299052163404649/8d94165d_1766278.png '屏幕截图') |
+| ![输入图片说明](https://foruda.gitee.com/images/1780299074949590692/27f5bfb5_1766278.png '屏幕截图') | ![输入图片说明](https://foruda.gitee.com/images/1780299108816841231/619a7c57_1766278.png '屏幕截图') |
+| ![输入图片说明](https://foruda.gitee.com/images/1780299089818500856/862ba805_1766278.png '屏幕截图') | ![输入图片说明](https://foruda.gitee.com/images/1780299173744267947/95cb0cd3_1766278.png '屏幕截图') |
+| ![输入图片说明](https://foruda.gitee.com/images/1780299193694706123/28257dc1_1766278.png '屏幕截图') | ![输入图片说明](https://foruda.gitee.com/images/1780299147525013883/ebcd9dfe_1766278.png '屏幕截图') |
+| ![输入图片说明](https://foruda.gitee.com/images/1780299220007761523/dc7e27c9_1766278.png '屏幕截图') | ![输入图片说明](https://foruda.gitee.com/images/1780299235966983519/35b047e1_1766278.png '屏幕截图') |
+| ![输入图片说明](https://foruda.gitee.com/images/1780299250884681522/e5731314_1766278.png '屏幕截图') | ![输入图片说明](https://foruda.gitee.com/images/1780299267028602229/230d5428_1766278.png '屏幕截图') |
+| ![输入图片说明](https://foruda.gitee.com/images/1780299293149732467/19abcf6c_1766278.png '屏幕截图') | ![输入图片说明](https://foruda.gitee.com/images/1780299311267192779/e665c668_1766278.png '屏幕截图') |
+| ![输入图片说明](https://foruda.gitee.com/images/1780299327888096947/283a177f_1766278.png '屏幕截图') | ![输入图片说明](https://foruda.gitee.com/images/1780299348897579356/caac864e_1766278.png '屏幕截图') |
+| ![输入图片说明](https://foruda.gitee.com/images/1780299376680669014/452585fb_1766278.png '屏幕截图') | ![输入图片说明](https://foruda.gitee.com/images/1780299843158459866/ceebbb63_1766278.png '屏幕截图') |
+| ![输入图片说明](https://foruda.gitee.com/images/1780299432356918392/07abdf6a_1766278.png '屏幕截图') | ![输入图片说明](https://foruda.gitee.com/images/1780299465584172180/a2b2be12_1766278.png '屏幕截图') |
+| ![输入图片说明](https://foruda.gitee.com/images/1780299491233431530/d88bfa35_1766278.png '屏幕截图') | ![输入图片说明](https://foruda.gitee.com/images/1780299513358913413/f2f90032_1766278.png '屏幕截图') |
+| ![输入图片说明](https://foruda.gitee.com/images/1780299527419238776/549cb852_1766278.png '屏幕截图') | ![输入图片说明](https://foruda.gitee.com/images/1780299553918371792/43bd3bff_1766278.png '屏幕截图') |
+| ![输入图片说明](https://foruda.gitee.com/images/1780299586662735625/1107a3ee_1766278.png '屏幕截图') | ![输入图片说明](https://foruda.gitee.com/images/1780299613342135530/526d7859_1766278.png '屏幕截图') |

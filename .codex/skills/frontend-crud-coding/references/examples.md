@@ -7,13 +7,13 @@
 ```text
 使用 $frontend-crud-coding 为 system/client 补一套前端 CRUD 页面。
 后端接口已经有 /system/client/list、/system/client/{id}、POST /system/client、PUT /system/client、DELETE /system/client/{ids}。
-请参考 plus-ui Gitee 仓库 6.X-Vue 分支的项目内 gen 模板、src/views/demo/demo/index.vue 和现有 system/client 风格实现。
+请参考项目内 gen 模板、本地 extensions/demo/src/views/demo/demo/index.vue 和现有 system/client 风格实现。需要远端参考时，使用 plus-ui Gitee 仓库 6.X-Vue 分支的原始路径。
 ```
 
 ### 期望执行方式
 
 - 先看 `src/api/system/client/*` 和 `src/views/system/client/index.vue` 是否已存在。
-- 再看 `src/views/demo/demo/index.vue` 的标准 hooks 版 CRUD 骨架。
+- 再看 `extensions/demo/src/views/demo/demo/index.vue` 的标准 hooks 版 CRUD 骨架。
 - 对照项目内 `gen/api.ts.ftl`、`gen/types.ts.ftl`、`gen/index.vue.ftl`。
 - 生成或修改 `api/index.ts`、`types.ts`、`views/.../index.vue`。
 - 使用 `AxiosPromise` from `@/utils/api-types`、`PageResult` from `@/api/types`、`useLoading`、`useFormDialog`、`useSearchReset`、`useTableSelection`。
@@ -24,7 +24,7 @@
 
 ```text
 使用 $frontend-crud-coding 为 demo/tree2 新增树表 CRUD，接口返回数组，字段包含 id、parentId、name、orderNum。
-参考 src/views/demo/tree/index.vue 和 workflow/category。
+参考 extensions/demo/src/views/demo/tree/index.vue 和 workflow/category。
 ```
 
 ### 期望执行方式
@@ -63,7 +63,7 @@
 
 ### 期望执行方式
 
-- 优先看 `src/views/workflow/category/index.vue` 和 `src/api/workflow/category/*`。
+- 优先看 `extensions/workflow/src/views/workflow/category/index.vue` 和 `src/api/workflow/category/*`。
 - 判断是否需要后端新增导出接口；前端导出路径保持 `workflow/category/export`。
 - 不迁移 system/user 的用户专属逻辑。
 - 保留树表、`useTreeTableExpand`、`handleTree` 和分类弹窗逻辑。

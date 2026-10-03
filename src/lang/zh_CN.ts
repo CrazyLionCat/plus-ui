@@ -12,7 +12,6 @@ export default {
     logging: '登 录 中...',
     code: '验证码',
     rememberPassword: '记住我',
-    switchRegisterPage: '立即注册',
     rule: {
       username: {
         required: '请输入您的账号'
@@ -22,42 +21,6 @@ export default {
       },
       code: {
         required: '请输入验证码'
-      }
-    },
-    social: {
-      wechat: '微信登录',
-      maxkey: 'MaxKey登录',
-      topiam: 'TopIam登录',
-      gitee: 'Gitee登录',
-      github: 'Github登录'
-    }
-  },
-  // 注册页面国际化
-  register: {
-    username: '用户名',
-    password: '密码',
-    confirmPassword: '确认密码',
-    register: '注 册',
-    registering: '注 册 中...',
-    registerSuccess: '恭喜你，您的账号 {username} 注册成功！',
-    code: '验证码',
-    switchLoginPage: '使用已有账户登录',
-    rule: {
-      username: {
-        required: '请输入您的账号',
-        length: '用户账号长度必须介于 {min} 和 {max} 之间'
-      },
-      password: {
-        required: '请输入您的密码',
-        length: '用户密码长度必须介于 {min} 和 {max} 之间',
-        pattern: '不能包含非法字符：{strings}'
-      },
-      code: {
-        required: '请输入验证码'
-      },
-      confirmPassword: {
-        required: '请再次输入您的密码',
-        equalToPassword: '两次输入的密码不一致'
       }
     }
   },

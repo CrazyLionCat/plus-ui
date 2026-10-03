@@ -4,8 +4,8 @@
 
 - 默认远端基线：`https://gitee.com/JavaLionLi/plus-ui`，分支 `6.X-Vue`。引用远端文件时必须同时写明 `branch=6.X-Vue` 和仓库内路径。
 - 当前目标目录下最近似页面、API、types。
-- 标准单表：`src/views/demo/demo/index.vue`、`src/api/demo/demo/index.ts`、`src/api/demo/demo/types.ts`。
-- 树表：`src/views/demo/tree/index.vue`、`src/views/workflow/category/index.vue`。
+- 标准单表：`extensions/demo/src/views/demo/demo/index.vue`、`extensions/demo/src/api/demo/demo/index.ts`、`extensions/demo/src/api/demo/demo/types.ts`。
+- 树表：`extensions/demo/src/views/demo/tree/index.vue`、`extensions/workflow/src/views/workflow/category/index.vue`。
 - 复杂系统页：`src/views/system/user/index.vue`、`src/views/system/role/index.vue`、`src/views/system/post/index.vue`、`src/views/system/config/index.vue`。
 - workflow 页：`src/views/workflow/*`、`src/api/workflow/*`。
 - 监控页：`src/views/monitor/*`、`src/api/monitor/*`。

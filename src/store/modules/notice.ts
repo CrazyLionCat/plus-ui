@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { computed, reactive } from 'vue';
+import { shouldAppendNotice } from '@/utils/push-message';
 
 export interface NoticeItem {
   messageId?: string | number;
@@ -35,11 +36,12 @@ export const useNoticeStore = defineStore('notice', () => {
   };
 
   const setNotices = (notices: NoticeItem[]) => {
-    state.notices = [...notices];
+    state.notices = notices.filter(shouldAppendNotice);
     sortNotices();
   };
 
   const addNotice = (notice: NoticeItem) => {
+    if (!shouldAppendNotice(notice)) return;
     const key = buildNoticeKey(notice);
     const index = state.notices.findIndex(item => buildNoticeKey(item) === key);
     if (index > -1) {

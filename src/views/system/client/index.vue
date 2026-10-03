@@ -186,14 +186,21 @@
           <el-input v-model="form.clientSecret" :disabled="form.id != null" placeholder="请输入客户端秘钥" />
         </el-form-item>
         <el-form-item label="授权类型" prop="grantTypeList">
-          <el-select v-model="form.grantTypeList" multiple placeholder="请输入授权类型">
+          <el-select v-model="form.grantTypeList" multiple placeholder="请选择密码认证">
             <el-option
-              v-for="dict in sys_grant_type"
+              v-for="dict in passwordGrantOptions"
               :key="dict.value"
               :label="dict.label"
               :value="dict.value"
             ></el-option>
           </el-select>
+          <el-alert
+            v-if="hasLegacyGrants"
+            title="当前记录含有基础模板未启用的授权类型，请明确移除旧类型并选择密码认证后保存。"
+            type="warning"
+            :closable="false"
+            class="mt-2"
+          />
         </el-form-item>
         <el-form-item label="设备类型" prop="deviceType">
           <el-select v-model="form.deviceType" placeholder="请输入设备类型">
@@ -284,11 +291,13 @@ import { useSearchReset } from '@/hooks/form/useSearchReset';
 import { useSearchToggle } from '@/hooks/form/useSearchToggle';
 import { useTableSelection } from '@/hooks/table/useTableSelection';
 import modal from '@/plugins/modal';
+import { hasOnlyPasswordGrant } from '@/utils/client-grants';
 import { useDict } from '@/utils/dict';
 import { download as requestDownload } from '@/utils/request';
 
 const { sys_normal_disable } = toRefs<any>(useDict('sys_normal_disable'));
 const { sys_grant_type } = toRefs<any>(useDict('sys_grant_type'));
+const passwordGrantOptions = [{ label: '密码认证', value: 'password' }];
 const { sys_device_type } = toRefs<any>(useDict('sys_device_type'));
 
 const clientList = ref<ClientVO[]>([]);
@@ -306,7 +315,7 @@ const initFormData: ClientForm = {
   clientId: undefined,
   clientKey: undefined,
   clientSecret: undefined,
-  grantTypeList: undefined,
+  grantTypeList: ['password'],
   deviceType: undefined,
   accessPath: undefined,
   accessPathList: undefined,
@@ -337,12 +346,20 @@ const data = reactive<PageData<ClientForm, ClientQuery>>({
     clientId: [{ required: true, message: '客户端id不能为空', trigger: 'blur' }],
     clientKey: [{ required: true, message: '客户端key不能为空', trigger: 'blur' }],
     clientSecret: [{ required: true, message: '客户端秘钥不能为空', trigger: 'blur' }],
-    grantTypeList: [{ required: true, message: '授权类型不能为空', trigger: 'change' }],
+    grantTypeList: [
+      {
+        validator: (_rule, value, callback) => {
+          callback(hasOnlyPasswordGrant(value) ? undefined : new Error('基础模板仅允许密码认证，请移除其他授权类型'));
+        },
+        trigger: 'change'
+      }
+    ],
     deviceType: [{ required: true, message: '设备类型不能为空', trigger: 'change' }]
   }
 });
 
 const { queryParams, form, rules } = toRefs(data);
+const hasLegacyGrants = computed(() => form.value.grantTypeList?.some(value => value !== 'password'));
 const { dialog, resetForm, openDialog, showDialog, closeDialog } = useFormDialog({
   form,
   formRef: clientFormRef,

@@ -4,11 +4,7 @@
       <section class="login-brand">
         <span class="brand-pill">Plus UI Workspace</span>
         <h1 class="brand-title">企业级后台管理系统</h1>
-        <p class="brand-desc">
-          真正面向企业级的应用框架 组件化 模块化 轻耦合 高扩展 针对企业痛点 业界一流技术栈
-          <br />
-          重写 RuoYi-Vue 所有功能 集成 Sa-Token、Mybatis-Plus、WarmFlow、SpringDoc、Hutool、OSS 定期同步。
-        </p>
+        <p class="brand-desc">使用账号密码进入业务工作台，统一管理用户、组织、权限、文件和通知。</p>
         <div class="brand-highlights">
           <span v-for="item in highlights" :key="item" class="highlight-chip">{{ item }}</span>
         </div>
@@ -72,30 +68,6 @@
 
         <div class="form-meta">
           <el-checkbox v-model="loginForm.rememberMe">{{ $t('login.rememberPassword') }}</el-checkbox>
-          <router-link v-if="register" class="link-type" :to="'/register'">
-            {{ $t('login.switchRegisterPage') }}
-          </router-link>
-        </div>
-
-        <div class="social-panel">
-          <span class="social-label">第三方登录</span>
-          <div class="social-actions">
-            <el-button circle :title="$t('login.social.wechat')" @click="doSocialLogin('wechat')">
-              <svg-icon icon-class="wechat" />
-            </el-button>
-            <el-button circle :title="$t('login.social.maxkey')" @click="doSocialLogin('maxkey')">
-              <svg-icon icon-class="maxkey" />
-            </el-button>
-            <el-button circle :title="$t('login.social.topiam')" @click="doSocialLogin('topiam')">
-              <svg-icon icon-class="topiam" />
-            </el-button>
-            <el-button circle :title="$t('login.social.gitee')" @click="doSocialLogin('gitee')">
-              <svg-icon icon-class="gitee" />
-            </el-button>
-            <el-button circle :title="$t('login.social.github')" @click="doSocialLogin('github')">
-              <svg-icon icon-class="github" />
-            </el-button>
-          </div>
         </div>
 
         <el-form-item class="submit-row">
@@ -117,19 +89,17 @@
 import { to } from 'await-to-js';
 import { useI18n } from 'vue-i18n';
 import { getCodeImg } from '@/api/login';
-import { authRouterUrl } from '@/api/system/social/auth';
 import { LoginData } from '@/api/types';
-import { HttpStatus } from '@/enums/RespEnum';
 import { useUserStore } from '@/store/modules/user';
 
 const title = import.meta.env.VITE_APP_TITLE;
 const currentYear = new Date().getFullYear();
 const quickStats = [
   { label: '细粒度权限管理', value: '动态权限控制' },
-  { label: '主流技术栈', value: '全栈技术集成' },
+  { label: '基础能力', value: '组织与权限' },
   { label: 'UI样式', value: '卡片式' }
 ];
-const highlights = ['技术栈全面升级', '动态菜单', '多主题布局', '深浅色主题'];
+const highlights = ['账号密码登录', '动态菜单', '多主题布局', '深浅色主题'];
 const userStore = useUserStore();
 const router = useRouter();
 const { t } = useI18n();
@@ -169,7 +139,6 @@ const loginRules: ElFormRules = {
 const codeUrl = ref('');
 const loading = ref(false);
 const captchaEnabled = ref(true);
-const register = ref(false);
 const redirect = ref('/');
 const loginRef = ref<ElFormInstance>();
 
@@ -230,16 +199,6 @@ const getLoginData = () => {
     password: username === null ? String(loginForm.value.password) : '',
     rememberMe: rememberMe === 'true'
   } as LoginData;
-};
-
-const doSocialLogin = (type: string) => {
-  authRouterUrl(type).then((res: any) => {
-    if (res.code === HttpStatus.SUCCESS) {
-      window.location.href = res.data;
-    } else {
-      ElMessage.error(res.msg);
-    }
-  });
 };
 
 onMounted(() => {
@@ -432,31 +391,6 @@ onMounted(() => {
   margin: -2px 0 18px;
 }
 
-.social-panel {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 14px 16px;
-  margin-bottom: 22px;
-  border-radius: 20px;
-  background: var(--app-elevated-soft-bg);
-  border: 1px solid var(--app-surface-border);
-}
-
-.social-label {
-  color: var(--app-text-muted);
-  font-size: 13px;
-  font-weight: 600;
-}
-
-.social-actions {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 8px;
-}
-
 .submit-row {
   margin-bottom: 0;
 }
@@ -483,18 +417,6 @@ onMounted(() => {
 
 .login-form :deep(.el-checkbox__label) {
   color: var(--app-text-muted);
-}
-
-.login-form :deep(.el-button.is-circle) {
-  background: var(--app-elevated-soft-bg);
-  border: 1px solid var(--app-surface-border);
-  color: var(--app-text-muted);
-}
-
-.login-form :deep(.el-button.is-circle:hover) {
-  background: rgba(53, 109, 255, 0.12);
-  border-color: rgba(53, 109, 255, 0.2);
-  color: var(--app-accent-strong);
 }
 
 .login-code {
@@ -561,15 +483,6 @@ onMounted(() => {
 
   .title-box {
     flex-direction: column;
-  }
-
-  .social-panel {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .social-actions {
-    justify-content: flex-start;
   }
 
   .captcha-row :deep(.el-form-item__content) {

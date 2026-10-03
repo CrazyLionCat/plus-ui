@@ -1,29 +1,14 @@
 /**
- * 注册
- */
-export type RegisterForm = {
-  username: string;
-  password: string;
-  confirmPassword?: string;
-  code?: string;
-  uuid?: string;
-  userType?: string;
-};
-
-/**
  * 登录请求
  */
 export interface LoginData {
   username?: string;
   password?: string;
   rememberMe?: boolean;
-  socialCode?: string;
-  socialState?: string;
-  source?: string;
   code?: string;
   uuid?: string;
   clientId: string;
-  grantType: string;
+  grantType: 'password';
 }
 
 /**

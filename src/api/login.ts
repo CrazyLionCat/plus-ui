@@ -15,29 +15,10 @@ export function login(data: LoginData): AxiosPromise<LoginResult> {
   const params = {
     ...data,
     clientId: data.clientId || clientId,
-    grantType: data.grantType || 'password'
-  };
-  return request({
-    url: '/auth/login',
-    headers: {
-      isToken: false,
-      isEncrypt: true,
-      repeatSubmit: false
-    },
-    method: 'post',
-    data: params
-  });
-}
-
-// 注册方法
-export function register(data: any) {
-  const params = {
-    ...data,
-    clientId: clientId,
     grantType: 'password'
   };
   return request({
-    url: '/auth/register',
+    url: '/auth/login',
     headers: {
       isToken: false,
       isEncrypt: true,
@@ -79,22 +60,6 @@ export function getCodeImg(): AxiosPromise<VerifyCodeResult> {
     },
     method: 'get',
     timeout: 20000
-  });
-}
-
-/**
- * 第三方登录
- */
-export function callback(data: LoginData): AxiosPromise<any> {
-  const LoginData = {
-    ...data,
-    clientId: clientId,
-    grantType: 'social'
-  };
-  return request({
-    url: '/auth/social/callback',
-    method: 'post',
-    data: LoginData
   });
 }
 
