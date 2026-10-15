@@ -127,9 +127,9 @@ export default function UserSelect({
     // useEffectEvent 在 effect 中调用是 React 官方推荐用法
     // oxlint-disable-next-line react/set-state-in-effect
     initModal();
-    // initModal/resetModal 为 useEffectEvent 引用稳定 无需作为依赖
+    // Effect Event 每次渲染的引用可能变化，不应作为依赖；弹窗初始化和重置只跟随 open
     // oxlint-disable-next-line react/exhaustive-effect-dependencies
-  }, [initModal, open, resetModal]);
+  }, [open]);
 
   const handleQuery = async () => {
     const values = form.getFieldsValue();
