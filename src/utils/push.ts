@@ -1,3 +1,4 @@
+import { useIntervalFn } from '@vueuse/core';
 import { ElNotification } from 'element-plus';
 import type { MessageVO } from '@/api/system/message/types';
 import { getMessageBox } from '@/api/system/message';
@@ -120,7 +121,8 @@ const initWsPush = (url: string) => {
     },
     heartbeat: {
       message: 'ping',
-      interval: 10000,
+      responseMessage: 'pong',
+      scheduler: callback => useIntervalFn(callback, 10000, { immediate: false }),
       pongTimeout: 2000
     },
     onMessage: (_, e) => {
