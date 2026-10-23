@@ -18,7 +18,7 @@ interface ImportMetaEnv {
 
 interface ImportMeta {
   readonly env: ImportMetaEnv;
-  glob: <T = unknown>(pattern: string, options: { eager: true; as: 'url' }) => Record<string, T>;
+  glob: <T = unknown>(pattern: string, options: { eager: true; query: '?url'; import: 'default' }) => Record<string, T>;
 }
 
 declare module '*.less';

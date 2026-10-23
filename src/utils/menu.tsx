@@ -46,7 +46,8 @@ import { isHttp, normalizePath } from '@/utils/ruoyi';
 
 const svgIconModules = import.meta.glob<string>('../assets/icons/svg/*.svg', {
   eager: true,
-  as: 'url'
+  query: '?url',
+  import: 'default'
 });
 const svgIconMap = Object.fromEntries(
   Object.entries(svgIconModules).map(([path, url]) => {
