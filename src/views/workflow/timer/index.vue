@@ -124,7 +124,11 @@
             {{ TRIGGER_TYPE_NAMES[scope.row.triggerType || ''] || scope.row.triggerType || '-' }}
           </template>
         </el-table-column>
-        <el-table-column label="间隔/时点" align="center" prop="triggerInterval" min-width="120" show-overflow-tooltip />
+        <el-table-column label="间隔/时点" align="center" prop="triggerInterval" min-width="140" show-overflow-tooltip>
+          <template #default="scope">
+            {{ formatTriggerInterval(scope.row.triggerType, scope.row.triggerInterval) }}
+          </template>
+        </el-table-column>
         <el-table-column label="下次触发时间" align="center" prop="nextTriggerAt" width="160" />
         <el-table-column label="已触发" align="center" width="90">
           <template #default="scope">
@@ -177,7 +181,7 @@
         <el-descriptions-item label="事件类型">{{ detail.eventTypeName || '-' }}</el-descriptions-item>
         <el-descriptions-item label="事件名称">{{ detail.eventName || '-' }}</el-descriptions-item>
         <el-descriptions-item label="触发策略">{{ TRIGGER_TYPE_NAMES[detail.triggerType || ''] || '-' }}</el-descriptions-item>
-        <el-descriptions-item label="间隔/时点">{{ detail.triggerInterval || '-' }}</el-descriptions-item>
+        <el-descriptions-item label="间隔/时点">{{ formatTriggerInterval(detail.triggerType, detail.triggerInterval) }}</el-descriptions-item>
         <el-descriptions-item label="时区">{{ detail.timezone || '-' }}</el-descriptions-item>
         <el-descriptions-item label="下次触发">{{ detail.nextTriggerAt || '-' }}</el-descriptions-item>
         <el-descriptions-item label="状态">{{ detail.statusName || detail.status }}</el-descriptions-item>
@@ -248,6 +252,50 @@ const TRIGGER_TYPE_NAMES: Record<string, string> = {
   FIXED: '固定间隔',
   POINT_IN_TIME: '每日时点'
 };
+
+/** ISO-8601 时长转中文：PT30S → "30 秒"，PT1H30M → "1 小时 30 分钟"，解析失败返回原文 */
+function formatIsoDuration(value: string): string {
+  const m = /^P(?:(\d+)D)?(?:T(?:(\d+)H)?(?:(\d+)M)?(?:(\d+(?:\.\d+)?)S)?)?$/.exec(value.trim());
+  if (!m) return value;
+  const parts: string[] = [];
+  if (m[1]) parts.push(`${m[1]} 天`);
+  if (m[2]) parts.push(`${m[2]} 小时`);
+  if (m[3]) parts.push(`${m[3]} 分钟`);
+  if (m[4]) parts.push(`${m[4]} 秒`);
+  return parts.length ? parts.join(' ') : value;
+}
+
+/** 间隔/时点列展示：按触发策略把原始值转成可读描述，解析失败按原文展示 */
+function formatTriggerInterval(triggerType: string | undefined, triggerInterval: string | undefined): string {
+  const raw = (triggerInterval || '').trim();
+  if (!raw) return '-';
+  try {
+    if (triggerType === 'POINT_IN_TIME') {
+      const arr = JSON.parse(raw);
+      const times = Array.isArray(arr) ? arr : [raw];
+      return times.length ? `每日 ${times.map((t: string) => String(t)).join('、')}` : raw;
+    }
+    if (triggerType === 'AFTER') {
+      let value = raw;
+      try {
+        // 兼容 JSON 数组存储；纯时长字符串（非合法 JSON）按原文处理
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed) && parsed.length) value = String(parsed[0]);
+      } catch {
+        // 纯时长字符串
+      }
+      const dur = formatIsoDuration(value);
+      return dur === value ? raw : `${dur}后`;
+    }
+    if (triggerType === 'FIXED') {
+      const dur = formatIsoDuration(raw);
+      return dur === raw ? raw : `每 ${dur}`;
+    }
+  } catch {
+    // 非法 JSON 或未知格式，按原文展示
+  }
+  return raw;
+}
 
 const { showSearch } = useSearchToggle();
 const { loading, withLoading } = useLoading(true);
