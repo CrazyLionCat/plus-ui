@@ -48,6 +48,48 @@ const statusColors: Record<string, string> = {
   CANCELLED: 'default'
 };
 
+function formatDuration(value: string) {
+  const match = /^P(?:(\d+)D)?(?:T(?:(\d+)H)?(?:(\d+)M)?(?:(\d+(?:\.\d+)?)S)?)?$/.exec(value.trim());
+  if (!match) return value;
+  const parts = [
+    match[1] && `${match[1]} 天`,
+    match[2] && `${match[2]} 小时`,
+    match[3] && `${match[3]} 分钟`,
+    match[4] && `${match[4]} 秒`
+  ].filter(Boolean);
+  return parts.length ? parts.join(' ') : value;
+}
+
+function formatTriggerInterval(type?: string, interval?: string) {
+  const raw = interval?.trim();
+  if (!raw) return '-';
+  if (type === 'POINT_IN_TIME') {
+    try {
+      const parsed: unknown = JSON.parse(raw);
+      const times = Array.isArray(parsed) ? parsed : [raw];
+      return times.length ? `每日 ${times.map(String).join('、')}` : raw;
+    } catch {
+      return raw;
+    }
+  }
+  if (type === 'AFTER') {
+    let value = raw;
+    try {
+      const parsed: unknown = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length) value = String(parsed[0]);
+    } catch {
+      // Plain ISO duration.
+    }
+    const duration = formatDuration(value);
+    return duration === value ? raw : `${duration}后`;
+  }
+  if (type === 'FIXED') {
+    const duration = formatDuration(raw);
+    return duration === raw ? raw : `每 ${duration}`;
+  }
+  return raw;
+}
+
 function buildQuery(params: TimerSearch): EventWaitQuery {
   const { statuses, eventTypes, nextTriggerAt, ...rest } = toPageQuery(params);
   return {
@@ -123,7 +165,7 @@ export default function WorkflowTimerPage() {
       dataIndex: 'triggerInterval',
       search: false,
       width: 160,
-      renderText: (_, row) => row.triggerInterval || '-'
+      renderText: (_, row) => formatTriggerInterval(row.triggerType, row.triggerInterval)
     },
     { title: '下次触发时间', dataIndex: 'nextTriggerAt', search: false, width: 170 },
     {
@@ -228,7 +270,7 @@ export default function WorkflowTimerPage() {
               { label: '事件类型', children: detail.eventTypeName || '-' },
               { label: '事件名称', children: detail.eventName || '-' },
               { label: '触发策略', children: triggerTypeNames[detail.triggerType || ''] || '-' },
-          { label: '间隔/时点', children: detail.triggerInterval || '-' },
+          { label: '间隔/时点', children: formatTriggerInterval(detail.triggerType, detail.triggerInterval) },
               { label: '时区', children: detail.timezone || '-' },
               { label: '下次触发', children: detail.nextTriggerAt || '-' },
               { label: '状态', children: detail.statusName || detail.status || '-' },
