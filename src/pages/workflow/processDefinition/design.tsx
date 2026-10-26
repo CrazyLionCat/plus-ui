@@ -11,7 +11,6 @@ export default function WorkflowProcessDefinitionDesignPage() {
     const definitionId = search.get('definitionId') || '';
     const params = new URLSearchParams({
       id: definitionId,
-      onlyDesignShow: 'true',
       Authorization: `Bearer ${getToken() || ''}`,
       clientid: appEnv.clientId
     });

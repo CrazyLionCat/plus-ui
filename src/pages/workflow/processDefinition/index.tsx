@@ -22,9 +22,7 @@ import {
   addDefinition,
   copyDefinition,
   deleteDefinition,
-  editDefinition,
   exportDefinition,
-  getDefinition,
   listDefinition,
   publishDefinition,
   unPublishList
@@ -82,11 +80,9 @@ export default function WorkflowProcessDefinitionPage() {
   const [selectedRows, setSelectedRows] = useState<FlowDefinitionVO[]>([]);
   const [modalOpen, { setTrue: openModal, setFalse: closeModal }] = useBoolean(false);
   const [modalTitle, setModalTitle] = useState('新增流程');
-  const [autoPass, setAutoPass] = useState(false);
   const [uploadOpen, { setTrue: openUploadModal, setFalse: closeUploadModal }] = useBoolean(false);
 
   const canAdd = hasPermi(userInfo, ['workflow:definition:add']);
-  const canEdit = hasPermi(userInfo, ['workflow:definition:edit']);
   const canRemove = hasPermi(userInfo, ['workflow:definition:remove']);
   const canImport = hasPermi(userInfo, ['workflow:definition:import']);
   const canExport = hasPermi(userInfo, ['workflow:definition:export']);
@@ -135,44 +131,16 @@ export default function WorkflowProcessDefinitionPage() {
       ...defaultForm,
       category: category || ''
     });
-    setAutoPass(false);
     setModalTitle('新增流程');
-    openModal();
-  };
-
-  const openEdit = async (row?: FlowDefinitionVO) => {
-    const target = row || selectedOne;
-    if (!target?.id) return;
-    const res = await getDefinition(target.id);
-    const data = res.data || {};
-    form.resetFields();
-    form.setFieldsValue(data);
-    setAutoPass(false);
-    if (data.ext) {
-      try {
-        setAutoPass(!!JSON.parse(data.ext).autoPass);
-      } catch {
-        setAutoPass(false);
-      }
-    }
-    setModalTitle('修改流程');
     openModal();
   };
 
   const submitForm = async (fields: FlowDefinitionForm) => {
     const values = { ...form.getFieldsValue(true), ...fields };
-    const data = { ...values, ext: JSON.stringify({ autoPass }) };
-    if (data.id) {
-      await editDefinition(data);
-    } else {
-      await addDefinition(data);
-      switchTab('1');
-    }
+    await addDefinition(values);
+    switchTab('1');
     message.success('操作成功');
     form.resetFields();
-    if (data.id) {
-      actionRef.current?.reload();
-    }
     return true;
   };
 
@@ -377,11 +345,6 @@ export default function WorkflowProcessDefinitionPage() {
                   添加
                 </Button>
               ),
-              canEdit && (
-                <Button key="edit" icon={<EditOutlined />} disabled={!selectedOne} onClick={() => openEdit()}>
-                  修改
-                </Button>
-              ),
               canRemove && (
                 <Popconfirm key="delete" title="是否确认删除选中的流程定义？" onConfirm={() => handleDelete()}>
                   <Button danger icon={<DeleteOutlined />} disabled={!selectedIds.length}>
@@ -409,8 +372,6 @@ export default function WorkflowProcessDefinitionPage() {
         open={modalOpen}
         form={form}
         categoryOptions={categoryOptions}
-        autoPass={autoPass}
-        onAutoPassChange={setAutoPass}
         onCancel={closeModal}
         onFinish={submitForm}
       />

@@ -6,6 +6,7 @@ import dayjs from 'dayjs';
 import { useEffect, useMemo, useState } from 'react';
 import type { LeaveForm } from '@/api/workflow/leave/types';
 import type { StartProcessBo } from '@/api/workflow/workflowCommon/types';
+import { listDefinition } from '@/api/workflow/definition';
 import { addLeave, getLeave, updateLeave } from '@/api/workflow/leave';
 import { startWorkFlow } from '@/api/workflow/task';
 import ApprovalButton from '@/components/workflow/ApprovalButton';
@@ -18,15 +19,6 @@ const leaveTypeOptions = [
   { value: '4', label: '婚假' }
 ];
 
-const flowCodeOptions = [
-  { value: 'leave1', label: '请假申请-普通' },
-  { value: 'leave2', label: '请假申请-排他网关' },
-  { value: 'leave3', label: '请假申请-并行网关' },
-  { value: 'leave4', label: '请假申请-会签' },
-  { value: 'leave5', label: '请假申请-并行会签网关' },
-  { value: 'leave6', label: '请假申请-排他并行会签' }
-];
-
 const leaveTimeDefaultOpenValue = [dayjs().startOf('day'), dayjs().endOf('day')] as [dayjs.Dayjs, dayjs.Dayjs];
 
 type PageType = 'add' | 'update' | 'view' | 'approval';
@@ -37,10 +29,7 @@ function calcLeaveDays(range?: [dayjs.Dayjs, dayjs.Dayjs]) {
 }
 
 function buildTaskVariables(data?: Partial<LeaveForm>) {
-  return {
-    leaveDays: data?.leaveDays,
-    userList: ['1', '3', '4']
-  };
+  return { day: data?.leaveDays };
 }
 
 export default function WorkflowLeaveEditPage() {
@@ -51,7 +40,9 @@ export default function WorkflowLeaveEditPage() {
   const id = query.get('id');
   const taskId = query.get('taskId') || '';
   const readonly = pageType === 'view';
-  const [flowCode, setFlowCode] = useState('leave1');
+  const [flowCode, setFlowCode] = useState('');
+  const [flowCodeOptions, setFlowCodeOptions] = useState<Array<{ value: string; label: string }>>([]);
+  const [flowCodeLocked, setFlowCodeLocked] = useState(false);
   const [loading, setLoading] = useState(false);
   const [submitLoading, setSubmitLoading] = useState(false);
   const [approvalOpen, { setTrue: openApprovalModal, set: setApprovalOpen }] = useBoolean(false);
@@ -62,6 +53,15 @@ export default function WorkflowLeaveEditPage() {
   useEffect(() => {
     const load = async () => {
       form.resetFields();
+      if (pageType === 'add' || pageType === 'update') {
+        const definitions = await listDefinition({ pageNum: 1, pageSize: 200 });
+        const options = (definitions.data?.rows || [])
+          .filter(item => item.isPublish === 1)
+          .map(item => ({ value: item.flowCode, label: `${item.flowName}（${item.flowCode}）` }));
+        setFlowCodeOptions(options);
+        setFlowCode(options[0]?.value || '');
+        setFlowCodeLocked(false);
+      }
       if (!id || pageType === 'add') {
         form.setFieldsValue({});
         return;
@@ -69,6 +69,15 @@ export default function WorkflowLeaveEditPage() {
       setLoading(true);
       try {
         const res = await getLeave(id);
+        if (pageType === 'update' && res.data.flowCode) {
+          setFlowCode(res.data.flowCode);
+          setFlowCodeLocked(true);
+          setFlowCodeOptions(current =>
+            current.some(item => item.value === res.data.flowCode)
+              ? current
+              : [...current, { value: res.data.flowCode!, label: res.data.flowCode! }]
+          );
+        }
         form.setFieldsValue({
           ...res.data,
           leaveTime:
@@ -137,6 +146,10 @@ export default function WorkflowLeaveEditPage() {
   };
 
   const submitFlow = async () => {
+    if (!flowCode) {
+      message.error('请选择流程定义');
+      return;
+    }
     const data = await saveLeave(false, false);
     if (!data?.id) return;
     const payload: StartProcessBo = {
@@ -183,9 +196,15 @@ export default function WorkflowLeaveEditPage() {
           <Form.Item name="status" hidden>
             <Input />
           </Form.Item>
-          {pageType === 'add' && (
+          {(pageType === 'add' || pageType === 'update') && (
             <Form.Item label="流程定义">
-              <Select value={flowCode} options={flowCodeOptions} onChange={setFlowCode} />
+              <Select
+                value={flowCode || undefined}
+                options={flowCodeOptions}
+                disabled={flowCodeLocked}
+                onChange={setFlowCode}
+                placeholder="选择流程定义"
+              />
             </Form.Item>
           )}
           <Form.Item name="leaveType" label="请假类型" rules={[{ required: true, message: '请假类型不能为空' }]}>
