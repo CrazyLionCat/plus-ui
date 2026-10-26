@@ -38,6 +38,7 @@ import WorkflowMyDocumentPage from '@/pages/workflow/task/myDocument';
 import WorkflowTaskCopyPage from '@/pages/workflow/task/taskCopyList';
 import WorkflowTaskFinishPage from '@/pages/workflow/task/taskFinish';
 import WorkflowTaskWaitingPage from '@/pages/workflow/task/taskWaiting';
+import WorkflowTimerPage from '@/pages/workflow/timer';
 import { usePermissionStore } from '@/stores/permissionStore';
 import { flattenBackendRoutes } from '@/utils/menu';
 
@@ -78,6 +79,7 @@ const migratedPages: Record<string, React.ComponentType> = {
   'workflow/processDefinition/index': WorkflowProcessDefinitionPage,
   'workflow/processInstance/index': WorkflowProcessInstancePage,
   'workflow/spel/index': WorkflowSpelPage,
+  'workflow/timer/index': WorkflowTimerPage,
   'workflow/task/allTaskWaiting/index': WorkflowAllTaskWaitingPage,
   'workflow/task/allTaskWaiting': WorkflowAllTaskWaitingPage,
   'workflow/task/myDocument/index': WorkflowMyDocumentPage,
