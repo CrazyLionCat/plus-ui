@@ -491,6 +491,7 @@ const cancelPopover = async (index: number) => {
 const handleView = row => {
   const routerJumpVo = reactive<RouterJumpVo>({
     businessId: row.businessId,
+    instanceId: row.id,
     taskId: row.id,
     type: 'view',
     formCustom: row.formCustom,

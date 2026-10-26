@@ -32,10 +32,11 @@ export const pageByFinish = (query: FlowInstanceQuery): AxiosPromise<PageResult<
 /**
  * 通过业务id获取历史流程图
  */
-export const flowHisTaskList = (businessId: string | number) => {
+export const flowHisTaskList = (ids: { businessId?: string | number; instanceId?: string | number }) => {
   return request({
-    url: `/workflow/instance/flowHisTaskList/${businessId}?t=${Math.random()}`,
-    method: 'get'
+    url: '/workflow/instance/flowHisTaskList',
+    method: 'get',
+    params: ids
   });
 };
 

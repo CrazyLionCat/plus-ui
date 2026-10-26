@@ -9,6 +9,8 @@
         @handleApprovalRecord="handleApprovalRecord"
         :buttonLoading="buttonLoading"
         :id="form.id"
+        :business-id="routeParams.id"
+        :instance-id="routeParams.instanceId"
         :status="form.status"
         :pageType="routeParams.type"
         :mode="false"
@@ -271,7 +273,7 @@ const handleStartWorkFlow = async (data: LeaveForm) => {
 };
 //审批记录
 const handleApprovalRecord = () => {
-  approvalRecordRef.value.init(form.value.id);
+  approvalRecordRef.value?.init({ businessId: routeParams.value.id || form.value.id, instanceId: routeParams.value.instanceId });
 };
 //提交回调
 const submitCallback = async () => {

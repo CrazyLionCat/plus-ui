@@ -113,12 +113,12 @@ const tabActiveName = ref('image');
 const insId = ref(null);
 
 //初始化查询审批记录
-const init = async (businessId: string | number) => {
+const init = async (ids: { businessId?: string | number; instanceId?: string | number }) => {
   visible.value = true;
   loading.value = true;
   tabActiveName.value = 'image';
   historyList.value = [];
-  flowHisTaskList(businessId).then(resp => {
+  flowHisTaskList(ids).then(resp => {
     if (resp.data) {
       historyList.value = resp.data.list;
       insId.value = resp.data.instanceId;
