@@ -38,6 +38,7 @@ export default function WorkflowLeaveEditPage() {
   const query = useMemo(() => new URLSearchParams(location.search), [location.search]);
   const pageType = (query.get('type') || 'add') as PageType;
   const id = query.get('id');
+  const instanceId = query.get('instanceId') || undefined;
   const taskId = query.get('taskId') || '';
   const readonly = pageType === 'view';
   const [flowCode, setFlowCode] = useState('');
@@ -117,7 +118,7 @@ export default function WorkflowLeaveEditPage() {
   };
 
   const openApprovalRecord = () => {
-    if (!formId) return;
+    if (!id && !formId && !instanceId) return;
     openRecordModal();
   };
 
@@ -182,6 +183,8 @@ export default function WorkflowLeaveEditPage() {
           status={formStatus}
           pageType={pageType}
           id={formId}
+          businessId={id || undefined}
+          instanceId={instanceId}
           buttonLoading={submitLoading}
           onSubmitDraft={() => saveLeave()}
           onSubmit={submitFlow}
@@ -233,7 +236,7 @@ export default function WorkflowLeaveEditPage() {
         onSubmitted={finishWorkflowAction}
       />
 
-      <ApprovalRecord businessId={formId} open={recordOpen} onOpenChange={setRecordOpen} />
+      <ApprovalRecord businessId={id || formId} instanceId={instanceId} open={recordOpen} onOpenChange={setRecordOpen} />
     </PageContainer>
   );
 }

@@ -76,9 +76,10 @@ export function updateVariable(data: { instanceId?: string | number; key?: strin
   });
 }
 
-export function flowHisTaskList(businessId: string | number) {
+export function flowHisTaskList(ids: { businessId?: string | number; instanceId?: string | number }) {
   return request<R<FlowHisTaskResult>>({
-    url: `/workflow/instance/flowHisTaskList/${businessId}?t=${Math.random()}`,
-    method: 'get'
+    url: '/workflow/instance/flowHisTaskList',
+    method: 'get',
+    params: ids
   });
 }

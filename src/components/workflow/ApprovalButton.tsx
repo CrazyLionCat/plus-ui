@@ -7,6 +7,8 @@ interface ApprovalButtonProps {
   status?: string;
   pageType: ApprovalPageType;
   id?: string | number;
+  businessId?: string | number;
+  instanceId?: string | number;
   buttonLoading?: boolean;
   onSubmitDraft: () => void;
   onSubmit: () => void;
@@ -19,6 +21,8 @@ export default function ApprovalButton({
   status,
   pageType,
   id,
+  businessId,
+  instanceId,
   buttonLoading = false,
   onSubmitDraft,
   onSubmit,
@@ -29,7 +33,7 @@ export default function ApprovalButton({
   const submitButtonShow =
     pageType === 'add' || (pageType === 'update' && !!status && ['draft', 'cancel', 'back'].includes(status));
   const approvalButtonShow = pageType === 'approval' && status === 'waiting';
-  const approvalRecordShow = !!id && status !== 'draft';
+  const approvalRecordShow = !!(id || businessId || instanceId) && status !== 'draft';
 
   return (
     <div className="workflow-approval-button-bar">

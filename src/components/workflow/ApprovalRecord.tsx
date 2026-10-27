@@ -15,18 +15,19 @@ import UserNameDisplay from './UserNameDisplay';
 
 interface ApprovalRecordProps {
   businessId?: string | number;
+  instanceId?: string | number;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   width?: string | number;
 }
 
-export default function ApprovalRecord({ businessId, open, onOpenChange, width = '80%' }: ApprovalRecordProps) {
+export default function ApprovalRecord({ businessId, instanceId, open, onOpenChange, width = '80%' }: ApprovalRecordProps) {
   const dicts = useDict('wf_task_status');
   const [recordList, setRecordList] = useState<FlowHistoryVO[]>([]);
-  const [instanceId, setInstanceId] = useState<string | number>();
+  const [recordInstanceId, setRecordInstanceId] = useState<string | number>();
   const { loading, runAsync: loadRecords } = useRequest(
-    async (nextBusinessId: string | number) => {
-      const res = await flowHisTaskList(nextBusinessId);
+    async (ids: { businessId?: string | number; instanceId?: string | number }) => {
+      const res = await flowHisTaskList(ids);
       const rows = res.data?.list || [];
       const nextRows = await Promise.all(
         rows.map(async row => {
@@ -47,17 +48,17 @@ export default function ApprovalRecord({ businessId, open, onOpenChange, width =
       manual: true,
       onSuccess: data => {
         setRecordList(data.rows);
-        setInstanceId(data.instanceId);
+        setRecordInstanceId(data.instanceId);
       }
     }
   );
 
   // 打开时清空旧数据并加载 打开弹窗同步外部状态属于合理场景
-  const resetAndLoad = useCallback(async (nextBusinessId?: string | number) => {
+  const resetAndLoad = useCallback(async (nextBusinessId?: string | number, nextInstanceId?: string | number) => {
     setRecordList([]);
-    setInstanceId(undefined);
-    if (nextBusinessId) {
-      await loadRecords(nextBusinessId);
+    setRecordInstanceId(undefined);
+    if (nextBusinessId || nextInstanceId) {
+      await loadRecords({ businessId: nextBusinessId, instanceId: nextInstanceId });
     }
   }, [loadRecords]);
 
@@ -65,8 +66,8 @@ export default function ApprovalRecord({ businessId, open, onOpenChange, width =
     if (!open) return;
     // 打开弹窗时同步清空旧数据属于与外部状态对齐的合理场景
     // oxlint-disable-next-line react/set-state-in-effect
-    void resetAndLoad(businessId);
-  }, [businessId, open, resetAndLoad]);
+    void resetAndLoad(businessId, instanceId);
+  }, [businessId, instanceId, open, resetAndLoad]);
 
   const downloadAttachment = async (row: OssVO) => {
     const blob = await downloadOss(row.ossId);
@@ -153,7 +154,7 @@ export default function ApprovalRecord({ businessId, open, onOpenChange, width =
             label: '流程图',
             children: (
               <Spin spinning={loading}>
-                <FlowChart instanceId={instanceId} />
+                <FlowChart instanceId={recordInstanceId} />
               </Spin>
             )
           },

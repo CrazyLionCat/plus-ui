@@ -51,6 +51,7 @@ function requestInstanceList(tab: InstanceTab, query: FlowInstanceQuery): Promis
 function openBusinessForm(row: FlowInstanceVO) {
   workflowCommon.routerJump({
     businessId: row.businessId,
+    instanceId: row.id,
     taskId: row.id,
     type: 'view',
     formCustom: row.formCustom || 'N',
