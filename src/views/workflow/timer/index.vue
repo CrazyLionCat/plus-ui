@@ -174,7 +174,7 @@
 
     <!-- 详情抽屉 -->
     <el-drawer v-model="detailVisible" title="定时任务详情" size="480px">
-      <el-descriptions :column="1" border>
+      <el-descriptions :column="1" border class="timer-detail-descriptions">
         <el-descriptions-item label="主键">{{ detail.id }}</el-descriptions-item>
         <el-descriptions-item label="流程名称">{{ detail.flowName || '-' }}</el-descriptions-item>
         <el-descriptions-item label="事件节点">{{ detail.nodeCode || '-' }}</el-descriptions-item>
@@ -422,6 +422,17 @@ onMounted(() => {
 .workflow-timer-page {
   .summary-tag {
     margin-left: 12px;
+  }
+}
+
+.timer-detail-descriptions {
+  :deep(.el-descriptions__label) {
+    min-width: 112px;
+    white-space: nowrap;
+  }
+
+  :deep(.el-descriptions__content) {
+    overflow-wrap: anywhere;
   }
 }
 
