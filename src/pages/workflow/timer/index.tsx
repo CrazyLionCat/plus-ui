@@ -263,6 +263,10 @@ export default function WorkflowTimerPage() {
             column={1}
             bordered
             size="small"
+            styles={{
+              label: { width: 112, minWidth: 112, whiteSpace: 'nowrap' },
+              content: { overflowWrap: 'anywhere' }
+            }}
             items={[
               { label: '主键', children: detail.id },
               { label: '流程名称', children: detail.flowName || '-' },
@@ -270,7 +274,7 @@ export default function WorkflowTimerPage() {
               { label: '事件类型', children: detail.eventTypeName || '-' },
               { label: '事件名称', children: detail.eventName || '-' },
               { label: '触发策略', children: triggerTypeNames[detail.triggerType || ''] || '-' },
-          { label: '间隔/时点', children: formatTriggerInterval(detail.triggerType, detail.triggerInterval) },
+              { label: '间隔/时点', children: formatTriggerInterval(detail.triggerType, detail.triggerInterval) },
               { label: '时区', children: detail.timezone || '-' },
               { label: '下次触发', children: detail.nextTriggerAt || '-' },
               { label: '状态', children: detail.statusName || detail.status || '-' },
