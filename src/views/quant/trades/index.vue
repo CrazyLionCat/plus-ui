@@ -118,7 +118,7 @@ const handleCredentialChange = () => {
   load();
 };
 const sync = async () => {
-  if (!credentialId.value || credentialId.value === 'ALL' || !symbol.value) return modal.msgWarning('请先选择账户并输入交易对');
+  if (!credentialId.value || credentialId.value === 'ALL') return modal.msgWarning('请先选择账户并输入交易对');
   await syncTrades(credentialId.value, symbol.value);
   await load();
 };

@@ -1,7 +1,6 @@
 export interface CredentialVO extends BaseEntity {
   id: string | number;
   userId: string | number;
-  userIds: string[];
   userName?: string;
   accountName: string;
   maskedApiKey: string;
@@ -21,7 +20,6 @@ export interface CredentialQuery extends PageQuery {
 export interface CredentialForm {
   id?: string | number;
   userId: string | undefined;
-  userIds: string[];
   accountName: string;
   apiKey: string;
   secretKey?: string;

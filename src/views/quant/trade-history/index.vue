@@ -22,8 +22,10 @@
     />
     <AdminLedgerTable title="开平仓记录" :columns="columns" :filters="filters" :load-page="loadPage">
       <template #column-direction="scope">
-        <dict-tag :options="quant_position_direction" :value="scope.row.direction" />
-        <el-tag v-if="scope.row.reconstructionSource === 'INFERRED'" class="inferred-tag" size="small" type="warning">推断</el-tag>
+        <div class="table-dict">
+          <dict-tag :options="quant_position_direction" :value="scope.row.direction" />
+          <el-tag v-if="scope.row.reconstructionSource === 'INFERRED'" class="inferred-tag" type="warning">推断</el-tag>
+        </div>
       </template>
     </AdminLedgerTable>
   </div>
@@ -65,23 +67,23 @@ const columns = [
     prop: 'direction',
     label: '开仓方向',
     ...centered,
-    width: 80,
+    width: 120,
   },
   { prop: 'entryPrice', label: '开仓价', ...centered, width: 100,formatter: (row: Record<string, unknown>) => price(row.entryPrice) },
   { prop: 'openingNotional', label: '开仓名义金额(U)', ...centered, formatter: (row: Record<string, unknown>) => decimal(row.openingNotional) },
-  {
+  /*{
     prop: 'leverage',
     label: '杠杆',
     width: 80,
     ...centered,
     formatter: (row: Record<string, unknown>) => (row.leverage == null ? '—' : `${row.leverage}x`)
-  },
-  { prop: 'openingBalance', label: '开仓余额U（核实时间）', ...centered, width: 230, formatter: (row: Record<string, unknown>) => balance(row.openingBalance, row.openingBalanceAt) },
+  },*/
+  /*{ prop: 'openingBalance', label: '开仓余额U（核实时间）', ...centered, width: 230, formatter: (row: Record<string, unknown>) => balance(row.openingBalance, row.openingBalanceAt) },*/
   { prop: 'openedAt', label: '开仓时间', ...centered, width: 160, formatter: (row: Record<string, unknown>) => time(row.openedAt) },
   { prop: 'closePrice', label: '平仓价', ...centered, width: 100,formatter: (row: Record<string, unknown>) => price(row.closePrice) },
   { prop: 'realizedPnl', label: '盈亏', ...centered, width: 100,formatter: (row: Record<string, unknown>) => decimal(row.realizedPnl) },
   { prop: 'commission', label: '手续费', ...centered, width: 100,formatter: (row: Record<string, unknown>) => price(row.commission) },
-  { prop: 'closingBalance', label: '平仓余额U（核实时间）', ...centered, width: 230, formatter: (row: Record<string, unknown>) => balance(row.closingBalance, row.closingBalanceAt) },
+  /*{ prop: 'closingBalance', label: '平仓余额U（核实时间）', ...centered, width: 230, formatter: (row: Record<string, unknown>) => balance(row.closingBalance, row.closingBalanceAt) },*/
   { prop: 'closedAt', label: '平仓时间', ...centered, width: 160, formatter: (row: Record<string, unknown>) => time(row.closedAt) }
 ];
 const filters = computed(() => [
@@ -110,5 +112,9 @@ const loadPage = async (query: PageQuery & Record<string, string | number | unde
 }
 .inferred-tag {
   margin-left: 6px;
+}
+.table-dict{
+  display: flex;
+  align-items: flex-end;
 }
 </style>

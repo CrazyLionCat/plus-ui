@@ -134,12 +134,10 @@
         </el-form-item>
         <el-form-item label="所属用户" prop="userId">
           <el-select
-            v-model="form.userIds"
+            v-model="form.userId"
             clearable
             filterable
-            multiple
             placeholder="请选择系统用户"
-            @change="handleUsersChanged"
           >
             <el-option
               v-for="user in users"
@@ -209,7 +207,6 @@ const users = ref<UserVO[]>([]);
 const query = reactive<CredentialQuery>({ pageNum: 1, pageSize: 10, accountName: '', status: '' });
 const form = reactive<CredentialForm>({
   userId: undefined,
-  userIds: [],
   accountName: '',
   apiKey: '',
   secretKey: '',
@@ -244,7 +241,6 @@ const resetForm = () => {
   Object.assign(form, {
     id: undefined,
     userId: undefined,
-    userIds: [],
     accountName: '',
     apiKey: '',
     secretKey: '',
@@ -258,15 +254,15 @@ const openAdd = () => {
   dialogVisible.value = true;
 };
 const openEdit = (row: CredentialVO) => {
-  Object.assign(form, row, { apiKey: '', secretKey: '', userIds: row.userIds || [row.userId] });
+  Object.assign(form, row, { apiKey: '', secretKey: '', userId: row.userId });
   dialogVisible.value = true;
   nextTick(() => formRef.value?.clearValidate());
 };
-const handleUsersChanged = (userIds: Array<number | string>) => {
+/*const handleUsersChanged = (userIds: Array<number | string>) => {
   const ids = userIds.map(String); // 统一成字符串
   form.userIds = ids;
   form.userId = form.userIds[0];
-};
+};*/
 const loadUsers = async () => {
   const query: UserQuery = { pageNum: 1, pageSize: 1000, status: '0' };
   const res = await userApi.listUser(query);
