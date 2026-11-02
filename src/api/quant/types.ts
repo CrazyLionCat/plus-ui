@@ -97,22 +97,26 @@ export interface PositionSnapshot {
 }
 
 export interface OrderSnapshot {
-  id?: string | number;
-  credentialId?: string | number;
-  customerName?: string;
   symbol: string;
-  orderId: string | null;
+  orderId: string;
   clientOrderId: string;
   side: string;
   type: string;
   status: string;
-  positionSide?: string | null;
-  reduceOnly?: boolean | null;
   price: string;
   originalQuantity: string;
   executedQuantity: string;
-  tradeCount?: number;
   updateTime: string;
+}
+
+export interface OrderLedgerRow extends Omit<OrderSnapshot, 'orderId'> {
+  id: string | number;
+  credentialId: string | number;
+  customerName?: string;
+  orderId: string | null;
+  positionSide?: string | null;
+  reduceOnly?: boolean | null;
+  tradeCount: number;
 }
 
 export interface ProtectionOrderSnapshot {

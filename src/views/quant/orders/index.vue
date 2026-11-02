@@ -140,7 +140,7 @@
   </div>
 </template>
 <script lang="ts" setup>
-import type { CredentialVO, OrderSnapshot, TradeRecord } from '@/api/quant/types';
+import type { CredentialVO, OrderLedgerRow, TradeRecord } from '@/api/quant/types';
 import { cancelOrder, listAccessibleOrders, listAccessibleTrades, listCredential, syncOrders } from '@/api/quant';
 import { ensureQuantSymbolTickSizes, formatQuantPrice } from '../components/price-format';
 import modal from '@/plugins/modal';
@@ -148,7 +148,7 @@ import modal from '@/plugins/modal';
 const loading = ref(false);
 const syncing = ref(false);
 const credentials = ref<CredentialVO[]>([]);
-const rows = ref<OrderSnapshot[]>([]);
+const rows = ref<OrderLedgerRow[]>([]);
 const total = ref(0);
 const credentialId = ref<number | string>('ALL');
 const symbol = ref('');
@@ -158,7 +158,7 @@ const orderStatuses = ['NEW', 'PARTIALLY_FILLED', 'FILLED', 'CANCELED', 'EXPIRED
 const query = reactive<PageQuery>({ pageNum: 1, pageSize: 10 });
 const fillsVisible = ref(false);
 const fillsLoading = ref(false);
-const selectedOrder = ref<OrderSnapshot>();
+const selectedOrder = ref<OrderLedgerRow>();
 const fillRows = ref<TradeRecord[]>([]);
 const fillTotal = ref(0);
 const fillQuery = reactive<PageQuery>({ pageNum: 1, pageSize: 10 });
@@ -210,7 +210,7 @@ const sync = async () => {
     syncing.value = false;
   }
 };
-const cancel = async (row: OrderSnapshot) => {
+const cancel = async (row: OrderLedgerRow) => {
   if (!row.credentialId || !row.orderId) return;
   await modal.confirm('确认撤销该订单吗？');
   await cancelOrder({
@@ -222,7 +222,7 @@ const cancel = async (row: OrderSnapshot) => {
   });
   await load();
 };
-const openFills = async (row: OrderSnapshot) => {
+const openFills = async (row: OrderLedgerRow) => {
   selectedOrder.value = row;
   fillsVisible.value = true;
   fillQuery.pageNum = 1;

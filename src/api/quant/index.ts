@@ -10,6 +10,7 @@ import type {
   CredentialQuery,
   CredentialVO,
   KlineSnapshot,
+  OrderLedgerRow,
   OrderSnapshot,
   ProtectionOrderSnapshot,
   PositionSnapshot,
@@ -69,7 +70,7 @@ export const listAccessibleOrders = (
   credentialId: string | number | undefined,
   symbol: string | undefined,
   query: PageQuery & { side?: string; status?: string }
-): AxiosPromise<PageResult<OrderSnapshot>> =>
+): AxiosPromise<PageResult<OrderLedgerRow>> =>
   request({ url: '/quant/order/page', method: 'get', params: { credentialId, symbol, ...query } });
 export const syncOrders = (credentialId: string | number, symbol: string) =>
   request({ url: `/quant/order/${credentialId}/sync`, method: 'post', params: { symbol } });

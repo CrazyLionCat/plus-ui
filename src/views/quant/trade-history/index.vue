@@ -73,10 +73,10 @@ const columns = [
   { prop: 'realizedPnl', label: '盈亏', ...centered, width: 100,formatter: (row: Record<string, unknown>) => decimal(row.realizedPnl) },
   { prop: 'commission', label: '手续费', ...centered, width: 100,formatter: (row: Record<string, unknown>) => price(row.commission) },
   { prop: 'closingBalance', label: '平仓余额U（核实时间）', ...centered, width: 230, formatter: (row: Record<string, unknown>) => balance(row.closingBalance, row.closingBalanceAt) },
-  { prop: 'openingOrderIds', label: '开仓订单 ID', ...centered, minWidth: 180, formatter: (row: Record<string, unknown>) => ids(row.openingOrderIds) },
-  { prop: 'closingOrderIds', label: '平仓订单 ID', ...centered, minWidth: 180, formatter: (row: Record<string, unknown>) => ids(row.closingOrderIds) },
-  { prop: 'openingTradeIds', label: '开仓成交 ID', ...centered, minWidth: 180, formatter: (row: Record<string, unknown>) => ids(row.openingTradeIds) },
-  { prop: 'closingTradeIds', label: '平仓成交 ID', ...centered, minWidth: 180, formatter: (row: Record<string, unknown>) => ids(row.closingTradeIds) },
+  { prop: 'openingOrderIds', label: '开仓订单 ID', ...centered, width: 180, formatter: (row: Record<string, unknown>) => ids(row.openingOrderIds) },
+  { prop: 'closingOrderIds', label: '平仓订单 ID', ...centered, width: 180, formatter: (row: Record<string, unknown>) => ids(row.closingOrderIds) },
+  { prop: 'openingTradeIds', label: '开仓成交 ID', ...centered, width: 180, formatter: (row: Record<string, unknown>) => ids(row.openingTradeIds) },
+  { prop: 'closingTradeIds', label: '平仓成交 ID', ...centered, width: 180, formatter: (row: Record<string, unknown>) => ids(row.closingTradeIds) },
   { prop: 'closedAt', label: '平仓时间', ...centered, width: 160, formatter: (row: Record<string, unknown>) => time(row.closedAt) }
 ];
 const filters = computed(() => [
