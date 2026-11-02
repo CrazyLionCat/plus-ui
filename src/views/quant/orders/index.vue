@@ -85,7 +85,7 @@
         <el-table-column label="已成交数量" min-width="120" prop="executedQuantity" />
         <el-table-column label="关联成交" width="100" align="center">
           <template #default="scope">
-            <el-button link type="primary" :disabled="!scope.row.tradeCount" @click="openFills(scope.row as OrderSnapshot)">
+            <el-button link type="primary" :disabled="!scope.row.tradeCount" @click="openFills(scope.row)">
               {{ scope.row.tradeCount || 0 }} 笔
             </el-button>
           </template>
@@ -101,7 +101,7 @@
               v-hasPermi="['quant:order:cancel']"
               link
               type="danger"
-              @click="cancel(scope.row as OrderSnapshot)"
+              @click="cancel(scope.row)"
             >撤单</el-button>
           </template>
         </el-table-column>
