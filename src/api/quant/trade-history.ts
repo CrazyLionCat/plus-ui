@@ -21,11 +21,18 @@ export interface TradeHistoryRecord {
   commission: string | null;
   closedAt: string | null;
   status: 'OPEN' | 'CLOSED';
-  reconstructionSource: 'EXCHANGE' | 'INFERRED';
+  openingQuantity: string;
+  closingQuantity: string;
+  remainingQuantity: string;
+  openingFillCount: number;
+  closingFillCount: number;
+  openingOrderIds: string[];
+  closingOrderIds: string[];
+  openingTradeIds: string[];
+  closingTradeIds: string[];
 }
 export interface TradeHistoryPage extends PageResult<TradeHistoryRecord> {
   incompleteCount: number;
-  inferredCount: number;
 }
 export const listTradeHistory = (
   query: PageQuery & Record<string, string | number | undefined>

@@ -97,15 +97,21 @@ export interface PositionSnapshot {
 }
 
 export interface OrderSnapshot {
+  id?: string | number;
+  credentialId?: string | number;
+  customerName?: string;
   symbol: string;
-  orderId: string;
+  orderId: string | null;
   clientOrderId: string;
   side: string;
   type: string;
   status: string;
+  positionSide?: string | null;
+  reduceOnly?: boolean | null;
   price: string;
   originalQuantity: string;
   executedQuantity: string;
+  tradeCount?: number;
   updateTime: string;
 }
 
