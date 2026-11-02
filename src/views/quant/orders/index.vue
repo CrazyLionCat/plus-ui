@@ -7,7 +7,7 @@
             <div class="table-heading">
               <span class="panel-kicker">Order Ledger</span>
               <h3>订单管理</h3>
-              <p>查询本地订单账本，订单与交易所成交按账户、交易对和订单 ID 关联；手动同步覆盖交易所普通历史接口最近 90 天的数据。</p>
+              <p>查询本地订单账本，订单与交易所成交按账户、交易对和订单 ID 关联；普通接口最多查询近 90 天，超过 3 天的无成交取消/过期订单可能已不再由交易所返回。</p>
             </div>
             <div class="toolbar-actions">
               <el-button
