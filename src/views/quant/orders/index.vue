@@ -211,12 +211,13 @@ const sync = async () => {
   }
 };
 const cancel = async (row: OrderLedgerRow) => {
-  if (!row.credentialId || !row.orderId) return;
+  const orderId = row.orderId;
+  if (!orderId) return;
   await modal.confirm('确认撤销该订单吗？');
   await cancelOrder({
     credentialId: row.credentialId,
     symbol: row.symbol,
-    orderId: row.orderId,
+    orderId,
     clientOrderId: row.clientOrderId,
     idempotencyKey: crypto.randomUUID()
   });
