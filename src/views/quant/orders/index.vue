@@ -25,7 +25,7 @@
         </template>
         <el-form :inline="true" class="query-form" @submit.prevent="handleQuery">
           <el-form-item label="交易账户">
-            <el-select v-model="credentialId" clearable placeholder="全部交易用户" @change="handleQuery">
+            <el-select v-model="credentialId" placeholder="全部交易用户" @change="handleQuery">
               <el-option label="全部交易用户" value="ALL" />
               <el-option v-for="item in credentials" :key="item.id" :label="item.accountName" :value="item.id" />
             </el-select>
