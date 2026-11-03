@@ -109,16 +109,6 @@ export interface OrderSnapshot {
   updateTime: string;
 }
 
-export interface OrderLedgerRow extends Omit<OrderSnapshot, 'orderId'> {
-  id: string | number;
-  credentialId: string | number;
-  customerName?: string;
-  orderId: string | null;
-  positionSide?: string | null;
-  reduceOnly?: boolean | null;
-  tradeCount: number;
-}
-
 export interface ProtectionOrderSnapshot {
   symbol: string;
   algoId: string;

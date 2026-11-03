@@ -8,7 +8,6 @@ export interface TradeHistoryRecord {
   accountName: string;
   symbol: string;
   direction: 'LONG' | 'SHORT';
-  positionCycleKey: string | null;
   entryPrice: string;
   openingNotional: string | null;
   leverage: number | null;
@@ -22,18 +21,11 @@ export interface TradeHistoryRecord {
   commission: string | null;
   closedAt: string | null;
   status: 'OPEN' | 'CLOSED';
-  openingQuantity: string;
-  closingQuantity: string;
-  remainingQuantity: string;
-  openingFillCount: number;
-  closingFillCount: number;
-  openingOrderIds: string[];
-  closingOrderIds: string[];
-  openingTradeIds: string[];
-  closingTradeIds: string[];
+  reconstructionSource: 'EXCHANGE' | 'INFERRED';
 }
 export interface TradeHistoryPage extends PageResult<TradeHistoryRecord> {
   incompleteCount: number;
+  inferredCount: number;
 }
 export const listTradeHistory = (
   query: PageQuery & Record<string, string | number | undefined>
