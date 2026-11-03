@@ -53,6 +53,7 @@ const centered = { align: 'center' as const, headerAlign: 'center' as const };
 const columns = [
   { prop: 'accountName', label: '客户名称', ...centered, width: 120 },
   { prop: 'symbol', label: '交易对', ...centered, minWidth: 100 },
+  { prop: 'positionCycleKey', label: '持仓周期 ID', ...centered, minWidth: 190, formatter: (row: Record<string, unknown>) => row.positionCycleKey || '—' },
   {
     prop: 'direction',
     label: '开仓方向',

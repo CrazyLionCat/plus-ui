@@ -8,6 +8,7 @@ export interface TradeHistoryRecord {
   accountName: string;
   symbol: string;
   direction: 'LONG' | 'SHORT';
+  positionCycleKey: string | null;
   entryPrice: string;
   openingNotional: string | null;
   leverage: number | null;
