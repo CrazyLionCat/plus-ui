@@ -11,6 +11,7 @@ import type {
   CredentialVO,
   KlineSnapshot,
   OrderSnapshot,
+  OrderLedgerRow,
   ProtectionOrderSnapshot,
   PositionSnapshot,
   RiskForm,
@@ -65,6 +66,14 @@ export const listPositions = (credentialId: string | number, symbol?: string, si
   request({ url: `/quant/position/${credentialId}`, method: 'get', params: { symbol }, signal });
 export const listOrders = (credentialId: string | number, symbol?: string, signal?: AbortSignal): AxiosPromise<OrderSnapshot[]> =>
   request({ url: `/quant/order/${credentialId}`, method: 'get', params: { symbol }, signal });
+export const listAccessibleOrders = (
+  credentialId: string | number | undefined,
+  symbol: string | undefined,
+  query: PageQuery & { side?: string; status?: string }
+): AxiosPromise<PageResult<OrderLedgerRow>> =>
+  request({ url: '/quant/order/page', method: 'get', params: { credentialId, symbol, ...query } });
+export const syncOrders = (credentialId: string | number, symbol: string) =>
+  request({ url: `/quant/order/${credentialId}/sync`, method: 'post', params: { symbol } });
 export const listProtectionOrders = (
   credentialId: string | number,
   symbol?: string,

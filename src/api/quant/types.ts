@@ -108,6 +108,24 @@ export interface OrderSnapshot {
   executedQuantity: string;
   updateTime: string;
 }
+export interface OrderLedgerRow {
+  id: string | number;
+  credentialId: string | number;
+  customerName?: string;
+  symbol: string;
+  orderId?: string | null;
+  clientOrderId?: string | null;
+  side: string;
+  positionSide?: string | null;
+  reduceOnly?: boolean | null;
+  type: string;
+  price: string | number;
+  originalQuantity: string | number;
+  executedQuantity: string | number;
+  tradeCount: number;
+  status: string;
+  updateTime?: string;
+}
 
 export interface ProtectionOrderSnapshot {
   symbol: string;
