@@ -38,6 +38,14 @@ export const getEventWait = (id: string | number): AxiosPromise<EventWaitVO> => 
   });
 };
 
+/** 恢复已死的事件等待记录，定时启动任务除外 */
+export const reviveEventWait = (id: string | number): AxiosPromise<void> => {
+  return request({
+    url: `/workflow/eventWait/${id}/revive`,
+    method: 'post'
+  });
+};
+
 /**
  * 手动补发一次定时启动任务，返回新建实例主键；不影响该任务的下次触发时间
  * @param data

@@ -145,9 +145,26 @@
             <span>{{ scope.row.businessId || (scope.row.instanceId ? scope.row.instanceId : '定义级') }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="操作" align="center" width="190" fixed="right">
+        <el-table-column label="操作" align="center" width="250" fixed="right">
           <template #default="scope">
             <div class="timer-action-group">
+              <el-tooltip
+                v-if="scope.row.status === 'DEAD'"
+                :disabled="!isTimerStart(scope.row)"
+                content="定时启动任务请通过重新发布或挂起后激活恢复"
+              >
+                <el-button
+                  v-hasPermi="['workflow:eventWait:trigger']"
+                  link
+                  type="warning"
+                  icon="Refresh"
+                  :disabled="isTimerStart(scope.row) || restoringId !== undefined"
+                  :loading="restoringId === scope.row.id"
+                  @click="handleRevive(scope.row)"
+                >
+                  手动恢复
+                </el-button>
+              </el-tooltip>
               <el-button link type="primary" icon="View" @click="handleDetail(scope.row)">详情</el-button>
               <el-button
                 v-if="isTimerStart(scope.row)"
@@ -222,7 +239,7 @@
 </template>
 
 <script setup name="Timer" lang="ts">
-import { listEventWait, getEventWait, summaryEventWait, triggerTimerStart } from '@/api/workflow/timer';
+import { listEventWait, getEventWait, summaryEventWait, triggerTimerStart, reviveEventWait } from '@/api/workflow/timer';
 import type { EventWaitQuery, EventWaitSummary, EventWaitVO } from '@/api/workflow/timer/types';
 import { useLoading } from '@/hooks/async/useLoading';
 import { useSearchToggle } from '@/hooks/form/useSearchToggle';
@@ -327,6 +344,7 @@ const triggerVisible = ref(false);
 const triggerRow = ref<EventWaitVO | null>(null);
 const triggerForm = reactive({ businessId: '' });
 const submitting = ref(false);
+const restoringId = ref<string | number>();
 
 const buildQuery = (): EventWaitQuery => {
   return {
@@ -394,6 +412,25 @@ const handleTrigger = (row: EventWaitVO | Record<string, any>) => {
   triggerRow.value = row as EventWaitVO;
   triggerForm.businessId = '';
   triggerVisible.value = true;
+};
+
+const handleRevive = async (row: EventWaitVO | Record<string, any>) => {
+  if (restoringId.value !== undefined || row.status !== 'DEAD' || isTimerStart(row)) return;
+  restoringId.value = row.id;
+  try {
+    const confirmed = await modal
+      .confirm('确认恢复该事件等待记录？恢复后重试次数归零，定时事件将从当前时间重新排期。')
+      .then(() => true, () => false);
+    if (!confirmed) return;
+    await reviveEventWait(row.id);
+    modal.msgSuccess('已恢复');
+    await getList();
+    if (detailVisible.value && detail.value.id === row.id) {
+      await handleDetail(row);
+    }
+  } finally {
+    restoringId.value = undefined;
+  }
 };
 
 const submitTrigger = async () => {
