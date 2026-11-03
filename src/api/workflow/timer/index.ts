@@ -14,6 +14,11 @@ export function getEventWait(id: string | number) {
   return request<R<EventWaitVO>>({ url: `/workflow/eventWait/${id}`, method: 'get' });
 }
 
+/** 恢复已死的事件等待记录，定时启动任务除外 */
+export function reviveEventWait(id: string | number) {
+  return request<R<void>>({ url: `/workflow/eventWait/${id}/revive`, method: 'post' });
+}
+
 export function triggerTimerStart(data: TimerTriggerForm) {
   return request<R<string | number>>({ url: '/workflow/eventWait/trigger', method: 'post', data });
 }

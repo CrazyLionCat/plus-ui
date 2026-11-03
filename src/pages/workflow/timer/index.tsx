@@ -1,9 +1,9 @@
 import { EyeOutlined, PlayCircleOutlined, ReloadOutlined } from '@ant-design/icons';
 import { PageContainer, ProTable, type ActionType, type ProColumns } from '@ant-design/pro-components';
-import { Alert, Button, Descriptions, Drawer, Form, Input, message, Modal, Space, Tag, Typography } from 'antd';
+import { Alert, Button, Descriptions, Drawer, Form, Input, message, Modal, Space, Tag, Tooltip, Typography } from 'antd';
 import { useRef, useState } from 'react';
 import type { EventWaitQuery, EventWaitSummary, EventWaitVO } from '@/api/workflow/timer/types';
-import { getEventWait, listEventWait, summaryEventWait, triggerTimerStart } from '@/api/workflow/timer';
+import { getEventWait, listEventWait, summaryEventWait, triggerTimerStart, reviveEventWait } from '@/api/workflow/timer';
 import { useTableScroll } from '@/hooks/useTableScroll';
 import { useUserStore } from '@/stores/userStore';
 import { hasPermi } from '@/utils/permission';
@@ -106,16 +106,40 @@ export default function WorkflowTimerPage() {
   const { tableScroll } = useTableScroll(1390);
   const userInfo = useUserStore(state => state.userInfo);
   const canTrigger = hasPermi(userInfo, ['workflow:eventWait:trigger']);
+  const canRevive = hasPermi(userInfo, ['workflow:eventWait:trigger']);
   const [summary, setSummary] = useState<EventWaitSummary>();
   const [timerDisabled, setTimerDisabled] = useState(false);
   const [detail, setDetail] = useState<EventWaitVO>();
   const [triggerRow, setTriggerRow] = useState<EventWaitVO>();
   const [businessId, setBusinessId] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [restoringId, setRestoringId] = useState<string | number>();
 
   const openDetail = async (row: EventWaitVO) => {
     const res = await getEventWait(row.id);
     setDetail(res.data || row);
+  };
+
+  const handleRevive = (row: EventWaitVO) => {
+    if (restoringId !== undefined || row.status !== 'DEAD' || row.eventType === 'TIMER_START') return;
+    setRestoringId(row.id);
+    Modal.confirm({
+      title: '确认手动恢复？',
+      content: '恢复后重试次数归零，定时事件将从当前时间重新排期。',
+      okText: '确认恢复',
+      cancelText: '取消',
+      onCancel: () => setRestoringId(undefined),
+      onOk: async () => {
+        try {
+          await reviveEventWait(row.id);
+          message.success('已恢复');
+          await actionRef.current?.reload();
+          if (detail?.id === row.id) await openDetail(row);
+        } finally {
+          setRestoringId(undefined);
+        }
+      }
+    });
   };
 
   const submitTrigger = async () => {
@@ -192,10 +216,26 @@ export default function WorkflowTimerPage() {
     {
       title: '操作',
       valueType: 'option',
-      width: 170,
+      width: 250,
       fixed: 'right',
       render: (_, row) => (
         <Space size={0}>
+          {canRevive && row.status === 'DEAD' && (
+            <Tooltip title={row.eventType === 'TIMER_START' ? '定时启动任务请通过重新发布或挂起后激活恢复' : undefined}>
+              <span>
+                <Button
+                  type="link"
+                  size="small"
+                  icon={<ReloadOutlined />}
+                  disabled={row.eventType === 'TIMER_START' || restoringId !== undefined}
+                  loading={restoringId === row.id}
+                  onClick={() => handleRevive(row)}
+                >
+                  手动恢复
+                </Button>
+              </span>
+            </Tooltip>
+          )}
           <Button type="link" size="small" icon={<EyeOutlined />} onClick={() => openDetail(row)}>
             详情
           </Button>
