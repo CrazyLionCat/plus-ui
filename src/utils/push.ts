@@ -12,6 +12,8 @@ import { parsePushMessage, resolveNoticeGroup, resolveNoticeTitle, shouldAppendN
 let eventSource: EventSource | undefined;
 let webSocket: WebSocket | undefined;
 let reconnectTimer: number | undefined;
+let heartbeatTimer: number | undefined;
+let pongTimer: number | undefined;
 let reconnectAttempts = 0;
 let pushClosed = true;
 const KICKED_MESSAGE = 'kicked';
@@ -103,6 +105,13 @@ function clearReconnectTimer() {
   }
 }
 
+function clearHeartbeatTimers() {
+  if (heartbeatTimer) window.clearInterval(heartbeatTimer);
+  if (pongTimer) window.clearTimeout(pongTimer);
+  heartbeatTimer = undefined;
+  pongTimer = undefined;
+}
+
 function scheduleReconnect(connect: () => void, maxRetries: number, delay: number) {
   if (pushClosed) return;
   if (reconnectAttempts >= maxRetries) return;
@@ -133,16 +142,30 @@ function initSsePush(path: string) {
 function initWsPush(path: string) {
   const connect = () => {
     if (pushClosed) return;
+    clearHeartbeatTimers();
     webSocket?.close();
-    webSocket = new WebSocket(buildWsUrl(path));
-    webSocket.onopen = () => {
+    const socket = new WebSocket(buildWsUrl(path));
+    webSocket = socket;
+    socket.onopen = () => {
       reconnectAttempts = 0;
+      heartbeatTimer = window.setInterval(() => {
+        if (socket.readyState !== WebSocket.OPEN) return;
+        socket.send('ping');
+        pongTimer = window.setTimeout(() => socket.close(), 2000);
+      }, 10000);
     };
-    webSocket.onmessage = event => {
-      if (String(event.data) === 'pong') return;
+    socket.onmessage = event => {
+      if (String(event.data) === 'pong') {
+        if (pongTimer) window.clearTimeout(pongTimer);
+        pongTimer = undefined;
+        return;
+      }
       handlePushMessage(String(event.data));
     };
-    webSocket.onclose = () => scheduleReconnect(connect, 3, 1000);
+    socket.onclose = () => {
+      clearHeartbeatTimers();
+      scheduleReconnect(connect, 3, 1000);
+    };
   };
   connect();
 }
@@ -177,6 +200,7 @@ export function initPush() {
 export function closePush() {
   pushClosed = true;
   clearReconnectTimer();
+  clearHeartbeatTimers();
   if (webSocket) {
     webSocket.onopen = null;
     webSocket.onmessage = null;

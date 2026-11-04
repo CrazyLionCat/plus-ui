@@ -1,5 +1,6 @@
 export interface RouterJumpVO {
   businessId: string;
+  instanceId?: string | number;
   taskId: string | number;
   type: string;
   formCustom: string;

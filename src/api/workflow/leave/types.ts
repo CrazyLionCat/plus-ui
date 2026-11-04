@@ -25,4 +25,5 @@ export interface LeaveVO {
   leaveDays?: number;
   remark?: string;
   status?: string;
+  flowCode?: string;
 }

@@ -106,7 +106,6 @@ export function createViteOptimizeDepsConfig() {
       'axios',
       'browser-image-compression',
       'clsx',
-      'crypto-js',
       'dayjs',
       'dayjs/locale/zh-cn',
       'echarts',
