@@ -68,7 +68,7 @@
 const products = [
   {
     name: 'RuoYi-Vue-Plus',
-    version: 'v6.0.0',
+    version: 'v6.1.0',
     summary: '面向分布式集群场景的后台管理系统，保持现有业务接口与权限逻辑，适合先完成前端壳升级。',
     tags: ['Vue 3', 'Element Plus', 'Spring Boot', 'Sa-Token'],
     primaryLabel: '访问 GitHub',
@@ -78,7 +78,7 @@ const products = [
   },
   {
     name: 'RuoYi-Cloud-Plus',
-    version: 'v6.0.0',
+    version: 'v6.1.0',
     summary: '微服务通用权限管理系统，适合更复杂的服务治理场景，也可以沿用同样的前端升级思路。',
     tags: ['Spring Cloud', 'Gateway', 'Nacos', 'Dubbo'],
     primaryLabel: '访问 GitHub',
