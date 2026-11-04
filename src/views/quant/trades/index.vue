@@ -55,13 +55,13 @@
             <template #default="scope">{{ formatQuantTablePrice(scope.row.symbol, scope.row.price) }}</template>
           </el-table-column>
           <el-table-column label="数量" min-width="150">
-            <template #default="scope">{{ scope.row.quantity || '-' }}</template>
+            <template #default="scope">{{ formatQuantQuantity(scope.row.symbol, scope.row.quantity) }}</template>
           </el-table-column>
           <el-table-column label="手续费" min-width="150">
-            <template #default="scope">{{ scope.row.commission || '-' }}</template>
+            <template #default="scope">{{ displayDecimal(scope.row.commission, 8) }}</template>
           </el-table-column>
           <el-table-column label="已实现盈亏" min-width="150">
-            <template #default="scope">{{ scope.row.realizedPnl || '-' }}</template>
+            <template #default="scope">{{ displayDecimal(scope.row.realizedPnl, 8) }}</template>
           </el-table-column>
           <el-table-column label="Trade ID" prop="exchangeTradeId" min-width="120" />
           <el-table-column label="Order ID" prop="exchangeOrderId" min-width="120" />
@@ -80,7 +80,8 @@
 <script lang="ts" setup>
 import type { CredentialVO, TradeRecord } from '@/api/quant/types';
 import { listAccessibleTrades, listCredential, syncTrades } from '@/api/quant';
-import { ensureQuantSymbolTickSizes, formatQuantTablePrice } from '../components/price-format';
+import { displayDecimal } from '../components/ledger-display';
+import { ensureQuantSymbolTickSizes, formatQuantQuantity, formatQuantTablePrice } from '../components/price-format';
 import modal from '@/plugins/modal';
 
 const loading = ref(false);

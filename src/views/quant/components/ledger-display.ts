@@ -67,7 +67,7 @@ export const labelOptions = (labels: Record<string, string>) =>
   Object.entries(labels).map(([value, label]) => ({ value, label }));
 
 // 按字符串展开科学计数法，避免先转 Number 导致价格精度丢失。
-export const displayDecimal = (value: unknown): string => {
+export const displayDecimal = (value: unknown, maximumFractionDigits?: number): string => {
   if (value === undefined || value === null || value === '') return '-';
   const text = String(value);
   const match = text.match(/^([+-]?)(\d+)(?:\.(\d*))?(?:[eE]([+-]?\d+))?$/);
@@ -76,15 +76,35 @@ export const displayDecimal = (value: unknown): string => {
   const digits = integer + fraction;
   const point = integer.length + Number(exponent);
   if (!Number.isSafeInteger(point) || Math.abs(point) > 1000) return text;
-  let decimal =
+  const expanded =
     point <= 0
-      ? `0.${'0'.repeat(-point)}${digits}`
+      ? '0.' + '0'.repeat(-point) + digits
       : point >= digits.length
         ? digits + '0'.repeat(point - digits.length)
-        : `${digits.slice(0, point)}.${digits.slice(point)}`;
-  decimal = decimal
-    .replace(/^(0+)(?=\d)/, '')
+        : digits.slice(0, point) + '.' + digits.slice(point);
+
+  if (maximumFractionDigits === undefined) {
+    const decimal = expanded
+      .replace(/^(0+)(?=\d)/, '')
+      .replace(/(\.\d*?)0+$/, '$1')
+      .replace(/\.$/, '');
+    return /^0(?:\.0*)?$/.test(decimal) ? '0' : (sign === '-' ? '-' : '') + decimal;
+  }
+
+  const requestedScale = Number.isFinite(maximumFractionDigits) ? Math.trunc(maximumFractionDigits) : 8;
+  const scale = Math.max(0, Math.min(1000, requestedScale));
+  const [whole, decimalPart = ''] = expanded.split('.');
+  const retainedFraction = decimalPart.slice(0, scale).padEnd(scale, '0');
+  const scaledText = (whole + retainedFraction).replace(/^0+(?=\d)/, '') || '0';
+  let scaled = BigInt(scaledText);
+  if (decimalPart.length > scale && decimalPart.charAt(scale) >= '5') scaled += 1n;
+
+  const rounded = scaled.toString().padStart(scale + 1, '0');
+  const result = scale === 0 ? rounded : rounded.slice(0, -scale) + '.' + rounded.slice(-scale);
+  const normalized = result
     .replace(/(\.\d*?)0+$/, '$1')
-    .replace(/\.$/, '');
-  return /^0(?:\.0*)?$/.test(decimal) ? '0' : (sign === '-' ? '-' : '') + decimal;
+    .replace(/\.$/, '')
+    .replace(/^(0+)(?=\d)/, '');
+  if (/^0(?:\.0*)?$/.test(normalized)) return '0';
+  return (sign === '-' ? '-' : '') + normalized;
 };

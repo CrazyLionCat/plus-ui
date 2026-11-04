@@ -1,7 +1,9 @@
 import { reactive } from 'vue';
+import { displayDecimal } from './ledger-display';
 
 const SYMBOL_PAGE_SIZE = 500;
 const symbolTickSizes = reactive(new Map<string, string>());
+const symbolQuantityPrecisions = reactive(new Map<string, number>());
 const symbolPricePrecisions = reactive(new Map<string, number>());
 let loadingTickSizes: Promise<void> | undefined;
 let tickSizesLoaded = false;
@@ -84,6 +86,7 @@ export const ensureQuantSymbolTickSizes = (): Promise<void> => {
         const key = row.symbol.toUpperCase();
         if (row.priceTickSize) symbolTickSizes.set(key, String(row.priceTickSize));
         if (Number.isInteger(row.pricePrecision) && row.pricePrecision >= 0) symbolPricePrecisions.set(key, row.pricePrecision);
+        cacheQuantSymbolQuantityPrecision(row.symbol, row.quantityPrecision);
       });
       if (rows.length < SYMBOL_PAGE_SIZE) break;
       pageNum += 1;
@@ -111,3 +114,19 @@ export const formatQuantTablePrice = (symbol: string | undefined, value: unknown
 };
 
 export const priceScaleFromTickSize = (tickSize: unknown): number | undefined => priceScale(tickSize);
+
+
+/** Cache the exchange-provided maximum decimal places for executed quantities. */
+export const cacheQuantSymbolQuantityPrecision = (symbol: string | undefined, precision: unknown): void => {
+  if (!symbol || precision === undefined || precision === null || precision === '') return;
+  const scale = Number(precision);
+  if (Number.isInteger(scale) && scale >= 0 && scale <= 16) {
+    symbolQuantityPrecisions.set(symbol.toUpperCase(), scale);
+  }
+};
+
+/** Format executed quantity by symbol precision, capped at eight display decimals. */
+export const formatQuantQuantity = (symbol: string | undefined, value: unknown): string => {
+  const precision = symbol ? symbolQuantityPrecisions.get(symbol.toUpperCase()) : undefined;
+  return displayDecimal(value, Math.min(8, precision ?? 8));
+};

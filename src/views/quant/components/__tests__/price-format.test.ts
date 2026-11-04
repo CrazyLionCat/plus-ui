@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { cacheQuantSymbolTickSize, formatPriceByTickSize, formatQuantPrice, formatQuantTablePrice } from '../price-format';
+import { cacheQuantSymbolQuantityPrecision, cacheQuantSymbolTickSize, formatPriceByTickSize, formatQuantPrice, formatQuantTablePrice, formatQuantQuantity } from '../price-format';
 
 describe('formatPriceByTickSize', () => {
   it('rounds prices to the decimal precision implied by tickSize', () => {
@@ -42,5 +42,11 @@ describe('formatQuantTablePrice', () => {
     expect(formatQuantTablePrice('UNKNOWNUSDT', '23.0546822307066408')).toBe('23.0546822307066408');
     expect(formatQuantTablePrice('UNKNOWNUSDT', '1000')).toBe('1000');
     expect(formatPriceByTickSize('23.0546822307066408', undefined, null, true)).toBe('23.0546822307066408');
+  });
+
+  it('formats executed quantities by symbol precision without floating-point conversion', () => {
+    cacheQuantSymbolQuantityPrecision('TESTUSDT', 4);
+    expect(formatQuantQuantity('TESTUSDT', '23.0546822307066408')).toBe('23.0547');
+    expect(formatQuantQuantity('UNKNOWNUSDT', '23.0546822307066408')).toBe('23.05468223');
   });
 });
