@@ -52,7 +52,7 @@
           <el-table-column label="交易对" prop="symbol" min-width="160" />
           <el-table-column label="方向" prop="side" min-width="100" />
           <el-table-column label="价格" min-width="150">
-            <template #default="scope">{{ formatQuantPrice(scope.row.symbol, scope.row.price) }}</template>
+            <template #default="scope">{{ formatQuantPriceCompact(scope.row.symbol, scope.row.price) }}</template>
           </el-table-column>
           <el-table-column label="数量" min-width="150">
             <template #default="scope">{{ formatDecimal(scope.row.quantity) }}</template>
@@ -80,7 +80,7 @@
 <script lang="ts" setup>
 import type { CredentialVO, TradeRecord } from '@/api/quant/types';
 import { listAccessibleTrades, listCredential, syncTrades } from '@/api/quant';
-import { ensureQuantSymbolTickSizes, formatQuantPrice } from '../components/price-format';
+import { ensureQuantSymbolTickSizes, formatQuantPriceCompact } from '../components/price-format';
 import modal from '@/plugins/modal';
 
 const loading = ref(false);
