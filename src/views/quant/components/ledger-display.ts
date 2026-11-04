@@ -115,6 +115,6 @@ export const displayCommission = (value: unknown): string => {
   if (value === undefined || value === null || value === '') return '—';
   return String(value).replace(
     /([+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?)\s+([A-Za-z0-9]{2,20})/g,
-    (_match, amount: string, asset: string) => \`${displayDecimal(amount, 8)} ${asset}\`
+    (_match, amount: string, asset: string) => displayDecimal(amount, 8) + ' ' + asset
   );
 };
