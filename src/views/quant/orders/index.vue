@@ -79,7 +79,7 @@
         </el-table-column>
         <el-table-column label="类型" width="105" prop="type" />
         <el-table-column label="价格" min-width="120">
-          <template #default="scope">{{ formatQuantPrice(scope.row.symbol, scope.row.price) }}</template>
+          <template #default="scope">{{ formatQuantPriceCompact(scope.row.symbol, scope.row.price) }}</template>
         </el-table-column>
         <el-table-column label="委托数量" min-width="110" prop="originalQuantity" />
         <el-table-column label="已成交数量" min-width="120" prop="executedQuantity" />
@@ -123,7 +123,7 @@
         <el-table-column label="交易对" min-width="110" prop="symbol" />
         <el-table-column label="方向" width="85" prop="side" />
         <el-table-column label="成交价格" min-width="130">
-          <template #default="scope">{{ formatQuantPrice(scope.row.symbol, scope.row.price) }}</template>
+          <template #default="scope">{{ formatQuantPriceCompact(scope.row.symbol, scope.row.price) }}</template>
         </el-table-column>
         <el-table-column label="成交数量" min-width="120" prop="quantity" />
         <el-table-column label="手续费" min-width="110" prop="commission" />
@@ -144,7 +144,7 @@
 <script lang="ts" setup>
 import type { CredentialVO, OrderLedgerRow, TradeRecord } from '@/api/quant/types';
 import { cancelOrder, listAccessibleOrders, listAccessibleTrades, listCredential, syncOrders } from '@/api/quant';
-import { ensureQuantSymbolTickSizes, formatQuantPrice } from '../components/price-format';
+import { ensureQuantSymbolTickSizes, formatQuantPriceCompact } from '../components/price-format';
 import modal from '@/plugins/modal';
 
 const loading = ref(false);
