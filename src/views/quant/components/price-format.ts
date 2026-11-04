@@ -87,6 +87,6 @@ export const formatQuantPrice = (symbol: string | undefined, value: unknown): st
 
 /** Format a table price without insignificant fractional trailing zeros. */
 export const formatQuantPriceCompact = (symbol: string | undefined, value: unknown): string =>
-  formatQuantPrice(symbol, value).replace(/(\\.\\d*?[1-9])0+$|\\.0+$/, '$1');
+  formatQuantPrice(symbol, value).replace(/(\.\d*?[1-9])0+$|\.0+$/, '$1');
 
 export const priceScaleFromTickSize = (tickSize: unknown): number | undefined => priceScale(tickSize);
