@@ -85,4 +85,8 @@ export const cacheQuantSymbolTickSize = (symbol: string | undefined, tickSize: u
 export const formatQuantPrice = (symbol: string | undefined, value: unknown): string =>
   formatPriceByTickSize(value, symbol ? symbolTickSizes.get(symbol.toUpperCase()) : undefined);
 
+/** Format a table price without insignificant fractional trailing zeros. */
+export const formatQuantPriceCompact = (symbol: string | undefined, value: unknown): string =>
+  formatQuantPrice(symbol, value).replace(/(\\.\\d*?[1-9])0+$|\\.0+$/, '$1');
+
 export const priceScaleFromTickSize = (tickSize: unknown): number | undefined => priceScale(tickSize);
