@@ -7,6 +7,8 @@ export interface LeaveVO {
   leaveDays: number;
   remark: string;
   status?: string;
+  /** 已有流程实例时回显的流程定义编码 */
+  flowCode?: string;
 }
 
 export interface LeaveForm extends BaseEntity {

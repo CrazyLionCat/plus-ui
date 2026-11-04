@@ -60,15 +60,6 @@
                   添加
                 </el-button>
                 <el-button
-                  v-hasPermi="['workflow:definition:edit']"
-                  type="success"
-                  icon="Edit"
-                  :disabled="single"
-                  @click="handleUpdate()"
-                >
-                  修改
-                </el-button>
-                <el-button
                   v-hasPermi="['workflow:definition:remove']"
                   type="danger"
                   icon="Delete"
@@ -300,9 +291,6 @@
             <el-radio value="MIMIC" size="large" border>仿钉钉模式</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="流程配置">
-          <el-checkbox v-model="autoPass" label="下一节点执行人是当前任务处理人自动审批" />
-        </el-form-item>
         <el-form-item label="是否动态表单" prop="formCustom">
           <el-radio-group v-model="form.formCustom" class="definition-radio-group">
             <el-radio value="Y" size="large" border disabled>是</el-radio>
@@ -336,8 +324,6 @@ import {
   unPublishList,
   publish,
   add,
-  edit,
-  getInfo,
   copy
 } from '@/api/workflow/definition';
 import { FlowDefinitionQuery, FlowDefinitionVo, FlowDefinitionForm } from '@/api/workflow/definition/types';
@@ -365,7 +351,6 @@ const processDefinitionList = ref<FlowDefinitionVo[]>([]);
 const categoryOptions = ref<CategoryTreeVO[]>([]);
 const { treeCollapsed } = useTreeCollapsed();
 const { showSearch } = useSearchToggle();
-const autoPass = ref(false);
 /** 部署文件分类选择 */
 const selectCategory = ref();
 const defFormRef = ref<ElFormInstance>();
@@ -620,36 +605,13 @@ const handleAdd = async () => {
   form.value.formCustom = 'N';
   showModelDialog('新增流程');
 };
-/** 修改按钮操作 */
-const handleUpdate = async (row?: Partial<FlowDefinitionVo>) => {
-  reset();
-  const id = row?.id || ids.value[0];
-  const res = await getInfo(id);
-  Object.assign(form.value, res.data);
-  autoPass.value = false;
-  if (form.value.ext != null && form.value.ext != '') {
-    const extJson = JSON.parse(form.value.ext);
-    if (extJson.autoPass != null && extJson.autoPass != '') {
-      autoPass.value = extJson.autoPass;
-    }
-  }
-  showModelDialog('修改流程');
-};
 
 const handleSubmit = async () => {
   defFormRef.value.validate(async (valid: boolean) => {
     if (valid) {
       setLoading(true);
-      const ext: { autoPass: boolean } = {
-        autoPass: autoPass.value
-      };
-      form.value.ext = JSON.stringify(ext);
-      if (form.value.id) {
-        await edit(form.value).finally(() => setLoading(false));
-      } else {
-        await add(form.value).finally(() => setLoading(false));
-        activeName.value = '1';
-      }
+      await add(form.value).finally(() => setLoading(false));
+      activeName.value = '1';
       modal.msgSuccess('操作成功');
       closeModelDialog();
       handleQuery();

@@ -15,7 +15,7 @@
       <el-button v-if="approvalButtonShow" :loading="props.buttonLoading" type="primary" @click="approvalVerifyOpen">
         审批
       </el-button>
-      <el-button v-if="props.id && props.status !== 'draft'" type="primary" @click="handleApprovalRecord">
+      <el-button v-if="(props.id || props.businessId || props.instanceId) && props.status !== 'draft'" type="primary" @click="handleApprovalRecord">
         流程进度
       </el-button>
       <slot />
@@ -37,6 +37,8 @@ const props = defineProps({
   pageType: propTypes.string.def(''),
   buttonLoading: propTypes.bool.def(false),
   id: propTypes.string.def('') || propTypes.number.def(),
+  businessId: propTypes.string.def(''),
+  instanceId: propTypes.string.def(''),
   mode: propTypes.bool.def(false)
 });
 const emits = defineEmits(['submitForm', 'approvalVerifyOpen', 'handleApprovalRecord']);

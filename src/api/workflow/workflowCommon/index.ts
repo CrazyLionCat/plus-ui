@@ -9,6 +9,7 @@ export default {
       path: routerJumpVo.formPath,
       query: {
         id: routerJumpVo.businessId,
+        instanceId: routerJumpVo.instanceId,
         type: routerJumpVo.type,
         taskId: routerJumpVo.taskId
       }
