@@ -4,14 +4,14 @@
       class="history-note"
       type="info"
       :closable="false"
-      title="一行代表一个持仓周期；开仓名义金额按成交数量 × 加权开仓价计算，不等同于实际保证金。账户余额为成交后核实的账户钱包余额及时间，不代表该笔交易单独造成的变化。旧记录缺少事实时显示 —；时间为北京时间。"
+      title="一行代表一个持仓周期；开仓名义金额按实际成交数量 × 加权开仓价计算，不等同于实际保证金。手续费按资产分别汇总，不跨资产相加。旧记录缺少事实时显示待核实；时间为北京时间。"
     />
     <el-alert
       v-if="incompleteCount"
       class="history-note"
       type="warning"
       :closable="false"
-      :title="`${incompleteCount} 个账户与交易对的成交链不完整或来源不明确，已排除，避免展示错误开平仓记录。`"
+      :title="`${incompleteCount} 个账户与交易对的成交链不完整或来源不明确，相关范围已标记待核实，不计入可靠交易归集。`"
     />
     <el-alert
       v-if="inferredCount"
@@ -23,7 +23,11 @@
     <AdminLedgerTable title="开平仓记录" :columns="columns" :filters="filters" :load-page="loadPage">
       <template #column-direction="scope">
         <div class="table-dict">
-          <dict-tag :options="quant_position_direction" :value="scope.row.direction" />
+          <dict-tag v-if="scope.row.direction === 'LONG' || scope.row.direction === 'SHORT'" :options="quant_position_direction" :value="scope.row.direction" />
+          <el-tag v-else type="warning">方向待核实</el-tag>
+          <el-tag v-if="scope.row.status === 'PARTIAL'" class="inferred-tag" type="info">部分平仓</el-tag>
+          <el-tag v-else-if="scope.row.status === 'OPEN'" class="inferred-tag" type="success">持仓中</el-tag>
+          <el-tag v-else-if="scope.row.status === 'RECONCILE_REQUIRED'" class="inferred-tag" type="danger">待核实</el-tag>
           <el-tag v-if="scope.row.reconstructionSource === 'INFERRED'" class="inferred-tag" type="warning">推断</el-tag>
         </div>
       </template>
@@ -82,7 +86,7 @@ const columns = [
   { prop: 'openedAt', label: '开仓时间', ...centered, width: 160, formatter: (row: Record<string, unknown>) => time(row.openedAt) },
   { prop: 'closePrice', label: '平仓价', ...centered, width: 100,formatter: (row: Record<string, unknown>) => price(row.closePrice) },
   { prop: 'realizedPnl', label: '盈亏', ...centered, width: 100,formatter: (row: Record<string, unknown>) => decimal(row.realizedPnl) },
-  { prop: 'commission', label: '手续费', ...centered, width: 100,formatter: (row: Record<string, unknown>) => price(row.commission) },
+  { prop: 'commission', label: '手续费', ...centered, width: 180, formatter: (row: Record<string, unknown>) => price(row.commission) },
   /*{ prop: 'closingBalance', label: '平仓余额U（核实时间）', ...centered, width: 230, formatter: (row: Record<string, unknown>) => balance(row.closingBalance, row.closingBalanceAt) },*/
   { prop: 'closedAt', label: '平仓时间', ...centered, width: 160, formatter: (row: Record<string, unknown>) => time(row.closedAt) }
 ];

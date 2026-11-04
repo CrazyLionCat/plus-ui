@@ -7,8 +7,8 @@ export interface TradeHistoryRecord {
   credentialId: string;
   accountName: string;
   symbol: string;
-  direction: 'LONG' | 'SHORT';
-  entryPrice: string;
+  direction: 'LONG' | 'SHORT' | 'UNKNOWN';
+  entryPrice: string | null;
   openingNotional: string | null;
   leverage: number | null;
   openingBalance: string | null;
@@ -20,8 +20,10 @@ export interface TradeHistoryRecord {
   realizedPnl: string | null;
   commission: string | null;
   closedAt: string | null;
-  status: 'OPEN' | 'CLOSED';
+  status: 'OPEN' | 'PARTIAL' | 'CLOSED' | 'RECONCILE_REQUIRED';
   reconstructionSource: 'EXCHANGE' | 'INFERRED';
+  reconciliationStatus: 'VERIFIED' | 'INFERRED' | 'RECONCILE_REQUIRED';
+  reconciliationReason?: string | null;
 }
 export interface TradeHistoryPage extends PageResult<TradeHistoryRecord> {
   incompleteCount: number;
