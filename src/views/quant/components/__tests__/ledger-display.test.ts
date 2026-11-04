@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { displayDecimal } from '../ledger-display';
+import { displayCommission, displayDecimal } from '../ledger-display';
 
 describe('displayDecimal', () => {
   it('preserves existing full precision when no display scale is supplied', () => {
@@ -20,5 +20,18 @@ describe('displayDecimal', () => {
 
   it('supports zero decimal places', () => {
     expect(displayDecimal('23.5', 0)).toBe('24');
+  });
+});
+
+
+describe('displayCommission', () => {
+  it('rounds each asset amount independently and preserves asset labels', () => {
+    expect(displayCommission('0.123456789012345678 USDT + 0.000000005 BNB'))
+      .toBe('0.12345679 USDT + 0.00000001 BNB');
+  });
+
+  it('preserves non-numeric commission states and handles missing values', () => {
+    expect(displayCommission('待核实')).toBe('待核实');
+    expect(displayCommission(null)).toBe('—');
   });
 });

@@ -37,7 +37,7 @@
 <script lang="ts" setup>
 import { listTradeHistory } from '@/api/quant/trade-history';
 import AdminLedgerTable from '../components/AdminLedgerTable.vue';
-import { displayDecimal } from '../components/ledger-display';
+import { displayCommission, displayDecimal } from '../components/ledger-display';
 import { useCredentialOptions } from '../components/useCredentialOptions';
 import { useDict } from '@/utils/dict';
 
@@ -57,6 +57,7 @@ const timeFormatter = new Intl.DateTimeFormat('zh-CN', {
 });
 const decimal = (value: unknown) => (value == null ? '—' : displayDecimal(value));
 const price = (value: unknown) => (value == null ? '—' : String(value));
+const amount = (value: unknown) => (value == null ? '—' : displayDecimal(value, 8));
 const time = (value: unknown) => (value ? timeFormatter.format(new Date(String(value))) : '—');
 const balance = (value: unknown, checkedAt: unknown) => {
   if (value == null) return '—';
@@ -84,9 +85,9 @@ const columns = [
   },*/
   /*{ prop: 'openingBalance', label: '开仓余额U（核实时间）', ...centered, width: 230, formatter: (row: Record<string, unknown>) => balance(row.openingBalance, row.openingBalanceAt) },*/
   { prop: 'openedAt', label: '开仓时间', ...centered, width: 160, formatter: (row: Record<string, unknown>) => time(row.openedAt) },
-  { prop: 'closePrice', label: '平仓价', ...centered, width: 100,formatter: (row: Record<string, unknown>) => price(row.closePrice) },
-  { prop: 'realizedPnl', label: '盈亏', ...centered, width: 100,formatter: (row: Record<string, unknown>) => decimal(row.realizedPnl) },
-  { prop: 'commission', label: '手续费', ...centered, width: 180, formatter: (row: Record<string, unknown>) => price(row.commission) },
+  { prop: 'closePrice', label: '平仓价', ...centered, width: 100,formatter: (row: Record<string, unknown>) => amount(row.closePrice) },
+  { prop: 'realizedPnl', label: '盈亏', ...centered, width: 100,formatter: (row: Record<string, unknown>) => amount(row.realizedPnl) },
+  { prop: 'commission', label: '手续费', ...centered, width: 180, formatter: (row: Record<string, unknown>) => displayCommission(row.commission) },
   /*{ prop: 'closingBalance', label: '平仓余额U（核实时间）', ...centered, width: 230, formatter: (row: Record<string, unknown>) => balance(row.closingBalance, row.closingBalanceAt) },*/
   { prop: 'closedAt', label: '平仓时间', ...centered, width: 160, formatter: (row: Record<string, unknown>) => time(row.closedAt) }
 ];

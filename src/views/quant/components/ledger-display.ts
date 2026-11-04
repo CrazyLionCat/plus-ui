@@ -108,3 +108,13 @@ export const displayDecimal = (value: unknown, maximumFractionDigits?: number): 
   if (/^0(?:\.0*)?$/.test(normalized)) return '0';
   return (sign === '-' ? '-' : '') + normalized;
 };
+
+
+/** Format each currency amount in the aggregated, multi-asset commission display. */
+export const displayCommission = (value: unknown): string => {
+  if (value === undefined || value === null || value === '') return '—';
+  return String(value).replace(
+    /([+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?)\s+([A-Za-z0-9]{2,20})/g,
+    (_match, amount: string, asset: string) => \`${displayDecimal(amount, 8)} ${asset}\`
+  );
+};
