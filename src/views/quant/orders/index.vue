@@ -117,7 +117,9 @@
 
     <el-dialog v-model="fillsVisible" :title="selectedOrder ? `订单 ${selectedOrder.orderId} · 成交记录` : '关联成交记录'" width="1000px" append-to-body>
       <el-table v-loading="fillsLoading" :data="fillRows" border>
-        <el-table-column label="成交时间" min-width="165" prop="tradeTime" />
+        <el-table-column label="成交时间" min-width="165">
+          <template #default="scope">{{ formatTime(scope.row.tradeTime) }}</template>
+        </el-table-column>
         <el-table-column label="交易对" min-width="110" prop="symbol" />
         <el-table-column label="方向" width="85" prop="side" />
         <el-table-column label="成交价格" min-width="130">
