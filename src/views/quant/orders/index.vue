@@ -79,7 +79,7 @@
         </el-table-column>
         <el-table-column label="类型" width="105" prop="type" />
         <el-table-column label="价格" min-width="120">
-          <template #default="scope">{{ formatQuantPriceCompact(scope.row.symbol, scope.row.price) }}</template>
+          <template #default="scope">{{ formatQuantTablePrice(scope.row.symbol, scope.row.price) }}</template>
         </el-table-column>
         <el-table-column label="委托数量" min-width="110" prop="originalQuantity" />
         <el-table-column label="已成交数量" min-width="120" prop="executedQuantity" />
@@ -123,7 +123,7 @@
         <el-table-column label="交易对" min-width="110" prop="symbol" />
         <el-table-column label="方向" width="85" prop="side" />
         <el-table-column label="成交价格" min-width="130">
-          <template #default="scope">{{ formatQuantPriceCompact(scope.row.symbol, scope.row.price) }}</template>
+          <template #default="scope">{{ formatQuantTablePrice(scope.row.symbol, scope.row.price) }}</template>
         </el-table-column>
         <el-table-column label="成交数量" min-width="120" prop="quantity" />
         <el-table-column label="手续费" min-width="110" prop="commission" />
@@ -144,7 +144,7 @@
 <script lang="ts" setup>
 import type { CredentialVO, OrderLedgerRow, TradeRecord } from '@/api/quant/types';
 import { cancelOrder, listAccessibleOrders, listAccessibleTrades, listCredential, syncOrders } from '@/api/quant';
-import { ensureQuantSymbolTickSizes, formatQuantPriceCompact } from '../components/price-format';
+import { ensureQuantSymbolTickSizes, formatQuantTablePrice } from '../components/price-format';
 import modal from '@/plugins/modal';
 
 const loading = ref(false);
@@ -186,14 +186,16 @@ const loadCredentials = async () => {
 const load = async () => {
   loading.value = true;
   try {
-    const result = await listAccessibleOrders(credentialId.value === 'ALL' ? undefined : credentialId.value, symbol.value || undefined, {
-      ...query,
-      side: side.value || undefined,
-      status: status.value || undefined
-    });
+    const [result] = await Promise.all([
+      listAccessibleOrders(credentialId.value === 'ALL' ? undefined : credentialId.value, symbol.value || undefined, {
+        ...query,
+        side: side.value || undefined,
+        status: status.value || undefined
+      }),
+      ensureQuantSymbolTickSizes().catch(() => undefined)
+    ]);
     rows.value = result.data?.rows || [];
     total.value = result.data?.total || 0;
-    void ensureQuantSymbolTickSizes().catch(() => undefined);
   } finally {
     loading.value = false;
   }

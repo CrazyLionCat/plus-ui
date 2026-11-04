@@ -52,16 +52,16 @@
           <el-table-column label="交易对" prop="symbol" min-width="160" />
           <el-table-column label="方向" prop="side" min-width="100" />
           <el-table-column label="价格" min-width="150">
-            <template #default="scope">{{ formatQuantPriceCompact(scope.row.symbol, scope.row.price) }}</template>
+            <template #default="scope">{{ formatQuantTablePrice(scope.row.symbol, scope.row.price) }}</template>
           </el-table-column>
           <el-table-column label="数量" min-width="150">
-            <template #default="scope">{{ formatDecimal(scope.row.quantity) }}</template>
+            <template #default="scope">{{ scope.row.quantity || '-' }}</template>
           </el-table-column>
           <el-table-column label="手续费" min-width="150">
-            <template #default="scope">{{ formatDecimal(scope.row.commission) }}</template>
+            <template #default="scope">{{ scope.row.commission || '-' }}</template>
           </el-table-column>
           <el-table-column label="已实现盈亏" min-width="150">
-            <template #default="scope">{{ formatDecimal(scope.row.realizedPnl) }}</template>
+            <template #default="scope">{{ scope.row.realizedPnl || '-' }}</template>
           </el-table-column>
           <el-table-column label="Trade ID" prop="exchangeTradeId" min-width="120" />
           <el-table-column label="Order ID" prop="exchangeOrderId" min-width="120" />
@@ -80,7 +80,7 @@
 <script lang="ts" setup>
 import type { CredentialVO, TradeRecord } from '@/api/quant/types';
 import { listAccessibleTrades, listCredential, syncTrades } from '@/api/quant';
-import { ensureQuantSymbolTickSizes, formatQuantPriceCompact } from '../components/price-format';
+import { ensureQuantSymbolTickSizes, formatQuantTablePrice } from '../components/price-format';
 import modal from '@/plugins/modal';
 
 const loading = ref(false);
@@ -105,27 +105,22 @@ const formatTime = (value?: string) => {
   const date = new Date(value);
   return Number.isNaN(date.getTime()) ? value : timeFormatter.format(date);
 };
-const formatDecimal = (value: string | number | undefined) => {
-  if (value === undefined || value === null || value === '') return '-';
-  const text = String(value);
-  return text.includes('e') || text.includes('E')
-    ? Number(text).toLocaleString('en-US', { useGrouping: false, maximumFractionDigits: 20 })
-    : text.replace(/\.0+$/, '').replace(/(\.[0-9]*?)0+$/, '$1');
-};
 const loadCredentials = async () => {
   credentials.value = (await listCredential({ pageNum: 1, pageSize: 100 })).data?.rows || [];
 };
 const load = async () => {
   loading.value = true;
   try {
-    const result = await listAccessibleTrades(
-      credentialId.value === 'ALL' ? undefined : credentialId.value,
-      symbol.value || undefined,
-      query
-    );
+    const [result] = await Promise.all([
+      listAccessibleTrades(
+        credentialId.value === 'ALL' ? undefined : credentialId.value,
+        symbol.value || undefined,
+        query
+      ),
+      ensureQuantSymbolTickSizes().catch(() => undefined)
+    ]);
     rows.value = result.data?.rows || [];
     total.value = result.data?.total || 0;
-    void ensureQuantSymbolTickSizes().catch(() => undefined);
   } finally {
     loading.value = false;
   }

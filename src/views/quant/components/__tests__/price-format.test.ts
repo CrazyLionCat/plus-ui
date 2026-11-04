@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { cacheQuantSymbolTickSize, formatPriceByTickSize, formatQuantPrice, formatQuantPriceCompact } from '../price-format';
+import { cacheQuantSymbolTickSize, formatPriceByTickSize, formatQuantPrice, formatQuantTablePrice } from '../price-format';
 
 describe('formatPriceByTickSize', () => {
-  it('rounds prices to the decimal precision implied by tickSize and keeps fixed zeros', () => {
+  it('rounds prices to the decimal precision implied by tickSize', () => {
     expect(formatPriceByTickSize('1.235', '0.01000000')).toBe('1.24');
     expect(formatPriceByTickSize('1.2', '0.010')).toBe('1.20');
   });
@@ -25,13 +25,22 @@ describe('formatPriceByTickSize', () => {
   });
 });
 
-describe('formatQuantPriceCompact', () => {
-  it('removes insignificant fractional trailing zeros after tick-size rounding', () => {
-    cacheQuantSymbolTickSize('COMPACTUSDT', '0.010');
-    expect(formatQuantPrice('COMPACTUSDT', '1.2')).toBe('1.20');
-    expect(formatQuantPriceCompact('COMPACTUSDT', '1.2')).toBe('1.2');
-    expect(formatQuantPriceCompact('COMPACTUSDT', '2.00')).toBe('2');
-    expect(formatQuantPriceCompact('UNKNOWNUSDT', '12.3400')).toBe('12.34');
-    expect(formatQuantPriceCompact('UNKNOWNUSDT', '1000')).toBe('1000');
+describe('formatQuantTablePrice', () => {
+  it('rounds long prices to the symbol tick precision and omits padding zeros', () => {
+    cacheQuantSymbolTickSize('BTCUSDT', '0.0001', 4);
+    expect(formatQuantTablePrice('BTCUSDT', '23.0546822307066408')).toBe('23.0547');
+    expect(formatQuantTablePrice('BTCUSDT', '23.054600000')).toBe('23.0546');
+    expect(formatQuantTablePrice('BTCUSDT', '23.05')).toBe('23.05');
+  });
+
+  it('uses pricePrecision when a tick size is unavailable', () => {
+    cacheQuantSymbolTickSize('FALLBACKUSDT', undefined, 3);
+    expect(formatQuantTablePrice('FALLBACKUSDT', '12.345678')).toBe('12.346');
+  });
+
+  it('preserves the source string when symbol precision is unknown', () => {
+    expect(formatQuantTablePrice('UNKNOWNUSDT', '23.0546822307066408')).toBe('23.0546822307066408');
+    expect(formatQuantTablePrice('UNKNOWNUSDT', '1000')).toBe('1000');
+    expect(formatPriceByTickSize('23.0546822307066408', undefined, null, true)).toBe('23.0546822307066408');
   });
 });

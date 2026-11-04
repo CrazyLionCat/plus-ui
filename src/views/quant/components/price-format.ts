@@ -2,6 +2,7 @@ import { reactive } from 'vue';
 
 const SYMBOL_PAGE_SIZE = 500;
 const symbolTickSizes = reactive(new Map<string, string>());
+const symbolPricePrecisions = reactive(new Map<string, number>());
 let loadingTickSizes: Promise<void> | undefined;
 let tickSizesLoaded = false;
 
@@ -27,11 +28,17 @@ const priceScale = (tickSize: unknown): number | undefined => {
   return Math.min(16, fraction.length);
 };
 
-/** Round decimal strings with half-up semantics while retaining the tick-size scale. */
-export const formatPriceByTickSize = (value: unknown, tickSize: unknown): string => {
+const precisionScale = (precision: unknown): number | undefined => {
+  if (precision === undefined || precision === null || precision === '') return undefined;
+  const scale = Number(precision);
+  return Number.isInteger(scale) && scale >= 0 && scale <= 16 ? scale : undefined;
+};
+
+/** Round decimal strings to the symbol price precision without converting through Number. */
+export const formatPriceByTickSize = (value: unknown, tickSize: unknown, fallbackPrecision?: unknown, trimTrailingZeros = false): string => {
   if (value === undefined || value === null || value === '') return '—';
   const raw = String(value);
-  const scale = priceScale(tickSize);
+  const scale = priceScale(tickSize) ?? precisionScale(fallbackPrecision);
   if (scale === undefined) return raw;
   const plain = expandDecimal(raw);
   if (!plain) return raw;
@@ -48,8 +55,15 @@ export const formatPriceByTickSize = (value: unknown, tickSize: unknown): string
     const magnitude = BigInt(digits || '0');
     scaled = (magnitude + divisor / 2n) / divisor;
   }
-  const rounded = scaled.toString().padStart(scale + 1, '0');
-  const result = scale === 0 ? rounded : `${rounded.slice(0, -scale)}.${rounded.slice(-scale)}`;
+  let outputScale = scale;
+  if (trimTrailingZeros) {
+    while (outputScale > 0 && scaled % 10n === 0n) {
+      scaled /= 10n;
+      outputScale -= 1;
+    }
+  }
+  const rounded = scaled.toString().padStart(outputScale + 1, '0');
+  const result = outputScale === 0 ? rounded : `${rounded.slice(0, -outputScale)}.${rounded.slice(-outputScale)}`;
   return `${negative && scaled !== 0n ? '-' : ''}${result}`;
 };
 
@@ -66,7 +80,10 @@ export const ensureQuantSymbolTickSizes = (): Promise<void> => {
       const rows = result.data?.rows || [];
       total = Number(result.data?.total ?? rows.length);
       rows.forEach(row => {
-        if (row.symbol && row.priceTickSize) symbolTickSizes.set(row.symbol.toUpperCase(), String(row.priceTickSize));
+        if (!row.symbol) return;
+        const key = row.symbol.toUpperCase();
+        if (row.priceTickSize) symbolTickSizes.set(key, String(row.priceTickSize));
+        if (Number.isInteger(row.pricePrecision) && row.pricePrecision >= 0) symbolPricePrecisions.set(key, row.pricePrecision);
       });
       if (rows.length < SYMBOL_PAGE_SIZE) break;
       pageNum += 1;
@@ -78,15 +95,19 @@ export const ensureQuantSymbolTickSizes = (): Promise<void> => {
   return loadingTickSizes;
 };
 
-export const cacheQuantSymbolTickSize = (symbol: string | undefined, tickSize: unknown): void => {
-  if (symbol && tickSize !== undefined && tickSize !== null && tickSize !== '') symbolTickSizes.set(symbol.toUpperCase(), String(tickSize));
+export const cacheQuantSymbolTickSize = (symbol: string | undefined, tickSize: unknown, pricePrecision?: unknown): void => {
+  if (!symbol) return;
+  const key = symbol.toUpperCase();
+  if (tickSize !== undefined && tickSize !== null && tickSize !== '') symbolTickSizes.set(key, String(tickSize));
+  if (precisionScale(pricePrecision) !== undefined) symbolPricePrecisions.set(key, Number(pricePrecision));
 };
 
 export const formatQuantPrice = (symbol: string | undefined, value: unknown): string =>
   formatPriceByTickSize(value, symbol ? symbolTickSizes.get(symbol.toUpperCase()) : undefined);
 
-/** Format a table price without insignificant fractional trailing zeros. */
-export const formatQuantPriceCompact = (symbol: string | undefined, value: unknown): string =>
-  formatQuantPrice(symbol, value).replace(/(\.\d*?[1-9])0+$|\.0+$/, '$1');
+export const formatQuantTablePrice = (symbol: string | undefined, value: unknown): string => {
+  const key = symbol?.toUpperCase();
+  return formatPriceByTickSize(value, key ? symbolTickSizes.get(key) : undefined, key ? symbolPricePrecisions.get(key) : undefined, true);
+};
 
 export const priceScaleFromTickSize = (tickSize: unknown): number | undefined => priceScale(tickSize);
