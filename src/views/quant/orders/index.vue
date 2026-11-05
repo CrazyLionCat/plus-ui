@@ -7,7 +7,7 @@
             <div class="table-heading">
               <span class="panel-kicker">Order Ledger</span>
               <h3>订单管理</h3>
-              <p>同步时会一起拉取近 90 天订单与逐笔成交，并补齐订单来源事实；交易对留空时，按当前账户已知交易对同步。</p>
+              <p>同步时会一起拉取近 90 天订单与逐笔成交，并补齐订单来源事实；交易对留空时，按当前账户已知交易对同步。超过 3 天的无成交取消/过期订单可能已不再由交易所返回。</p>
             </div>
             <div class="toolbar-actions">
               <el-button
