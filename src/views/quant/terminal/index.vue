@@ -156,6 +156,13 @@
       <el-card shadow="never" class="table-card">
         <el-tabs v-model="activeTab" @tab-change="handleDataTab">
           <el-tab-pane label="当前持仓" name="positions">
+            <el-alert
+              v-if="!accountSnapshotAvailable && positions.length"
+              title="账户连接或持仓快照暂不可用，当前保留最近一次已确认的持仓数据，等待重新同步。"
+              type="warning"
+              :closable="false"
+              show-icon
+            />
             <el-table
               :data="positionRows"
               :empty-text="accountSnapshotAvailable ? '暂无持仓' : '账户数据暂不可用'"
@@ -468,6 +475,7 @@ let tradeRequest = 0;
 let protectionRequest = 0;
 let accountRevision = 0;
 let positionRevision = 0;
+let positionSnapshotRequest = 0;
 let protectionRevision = 0;
 let symbolSearchGeneration = 0;
 let slopeLoadGeneration = 0;
@@ -1188,14 +1196,37 @@ function applyRawAccountEvent(rawJson: string | undefined) {
   }
 }
 
+async function refreshPositionsAfterAccountReconnect() {
+  const id = credentialId.value;
+  if (!id) return;
+  const generation = dataGeneration;
+  const request = ++positionSnapshotRequest;
+  const snapshotRevision = positionRevision;
+  try {
+    const response = await listPositions(id, undefined, dataRequestController?.signal);
+    if (generation !== dataGeneration || request !== positionSnapshotRequest) return;
+    positions.value = mergePositionSnapshots(response.data || [], positionEventChanges, snapshotRevision);
+    accountSnapshotAvailable.value = true;
+    renderOverlays();
+    connect();
+    void loadProtectionOrders();
+  } catch {
+    if (generation === dataGeneration && request === positionSnapshotRequest) {
+      accountSnapshotAvailable.value = false;
+    }
+  }
+}
+
 function connectAccountStream() {
   accountStream?.close();
   if (accountRetryTimer) clearTimeout(accountRetryTimer);
   if (!credentialId.value) return;
   lastAccountEvents.clear();
+  positionSnapshotRequest++;
   const generation = dataGeneration;
   const snapshotRevision = accountRevision;
   const snapshotPositionRevision = positionRevision;
+  let hasReceivedSnapshot = false;
   const q = new URLSearchParams({ credentialId: String(credentialId.value) });
   accountStream = openSse(
     `${import.meta.env.VITE_APP_BASE_API}/quant/account/stream?${q}`,
@@ -1208,58 +1239,70 @@ function connectAccountStream() {
           if (String(event.credentialId) === String(credentialId.value)) applyPositionPerformanceEvent(event.performance);
           return;
         }
-        if (['ACCOUNT_UPDATE', 'ORDER_TRADE_UPDATE', 'ALGO_UPDATE', 'CONNECTED', 'SNAPSHOT', 'DISCONNECTED'].includes(event.type)) {
-          if (String(event.credentialId) !== String(credentialId.value)) return;
-          const eventAt = Date.parse(event.eventTime || '');
-          if (!['SNAPSHOT', 'ORDER_TRADE_UPDATE', 'ALGO_UPDATE'].includes(event.type)) {
-            if (Number.isFinite(eventAt) && eventAt < (lastAccountEvents.get(event.type) || 0)) return;
-            if (Number.isFinite(eventAt)) lastAccountEvents.set(event.type, eventAt);
-          }
-          if (event.type === 'SNAPSHOT') {
-            if (!protectionLoading.value) void loadProtectionOrders();
-            void refreshPositionHistories();
-          }
-          if (event.type === 'CONNECTED') void refreshPositionHistories();
-          if (event.snapshotAvailable) {
+        if (!['ACCOUNT_UPDATE', 'ORDER_TRADE_UPDATE', 'ALGO_UPDATE', 'CONNECTED', 'SNAPSHOT', 'DISCONNECTED'].includes(event.type)) return;
+        if (String(event.credentialId) !== String(credentialId.value)) return;
+        const eventAt = Date.parse(event.eventTime || '');
+        if (!['SNAPSHOT', 'ORDER_TRADE_UPDATE', 'ALGO_UPDATE'].includes(event.type)) {
+          if (Number.isFinite(eventAt) && eventAt < (lastAccountEvents.get(event.type) || 0)) return;
+          if (Number.isFinite(eventAt)) lastAccountEvents.set(event.type, eventAt);
+        }
+
+        if (event.type === 'SNAPSHOT') {
+          const reconnectedSnapshot = hasReceivedSnapshot;
+          hasReceivedSnapshot = true;
+          if (!protectionLoading.value) void loadProtectionOrders();
+          void refreshPositionHistories();
+          const changed = snapshotRevision !== accountRevision;
+          if (event.accountSnapshotAvailable && event.account && !changed) account.value = event.account;
+          if (reconnectedSnapshot) {
+            // The server snapshot may have started before an event that is still queued for delivery.
+            // A fresh client-side read captures the current revision before its own REST request.
+            accountSnapshotAvailable.value = false;
+            void refreshPositionsAfterAccountReconnect();
+          } else if (event.positionsSnapshotAvailable && Array.isArray(event.positions)) {
+            positions.value = mergePositionSnapshots(event.positions, positionEventChanges, snapshotPositionRevision);
             accountSnapshotAvailable.value = true;
-            const changed = snapshotRevision !== accountRevision;
-            if (event.account && !changed) account.value = event.account;
-            if (Array.isArray(event.positions)) positions.value = mergePositionSnapshots(event.positions, positionEventChanges, snapshotPositionRevision);
-            if (Array.isArray(event.orders) && !changed) {
-              orders.value = event.orders;
-              ordersError.value = '';
-            }
-            if (changed && event.type === 'SNAPSHOT') scheduleAccountHydration(snapshotPositionRevision);
-            applyRawAccountEvent(event.rawJson);
           } else {
             accountSnapshotAvailable.value = false;
-            account.value = undefined;
-            positions.value = [];
-            orders.value = [];
-            ordersError.value = '账户数据暂不可用';
-            protectionOrders.value = [];
-            protectionLoaded.value = false;
-            protectionError.value = '账户连接已断开';
-            if (event.type !== 'DISCONNECTED') {
-              if (accountRetryTimer) clearTimeout(accountRetryTimer);
-              accountRetryTimer = setTimeout(connectAccountStream, 10000);
-            }
           }
-          renderOverlays();
+          if (event.ordersSnapshotAvailable && Array.isArray(event.orders) && !changed) {
+            orders.value = event.orders;
+            ordersError.value = '';
+          }
+          if (changed) scheduleAccountHydration(snapshotPositionRevision);
+          applyRawAccountEvent(event.rawJson);
+        } else if (event.type === 'CONNECTED') {
+          void refreshPositionHistories();
+          // The initial CONNECTED is followed by the controller's initial SNAPSHOT.
+          // A later CONNECTED means the exchange private stream itself was rebuilt.
+          if (hasReceivedSnapshot) void refreshPositionsAfterAccountReconnect();
+        } else if (event.type === 'DISCONNECTED') {
+          positionSnapshotRequest++;
+          accountSnapshotAvailable.value = false;
+          account.value = undefined;
+          orders.value = [];
+          ordersError.value = '账户数据暂不可用';
+          protectionOrders.value = [];
+          protectionLoaded.value = false;
+          protectionError.value = '账户连接已断开';
+        } else {
+          // ACCOUNT_UPDATE and order events are incremental facts, not full snapshots.
+          applyRawAccountEvent(event.rawJson);
         }
+        renderOverlays();
       } catch {
         // 忽略无效的账户事件，连接仍保持。
       }
     },
     () => {
       if (generation !== dataGeneration) return;
+      positionSnapshotRequest++;
       ordersError.value = '账户连接已断开';
       protectionOrders.value = [];
       protectionLoaded.value = false;
       protectionError.value = '账户连接已断开';
       accountSnapshotAvailable.value = false;
       account.value = undefined;
-      positions.value = [];
       orders.value = [];
       renderOverlays();
       accountStream?.close();
@@ -1268,7 +1311,6 @@ function connectAccountStream() {
     handleSseUnauthorized
   );
 }
-
 // ==================== 斜率抽屉逻辑 ====================
 function closeSlopeStream() {
   slopeStreams.forEach(connection => connection.close());
@@ -1494,6 +1536,7 @@ async function loadData() {
   dataRequestController = controller;
   const signal = controller.signal;
   const generation = ++dataGeneration;
+  positionSnapshotRequest++;
   ++symbolRequest;
   ++tradeRequest;
   ++protectionRequest;
