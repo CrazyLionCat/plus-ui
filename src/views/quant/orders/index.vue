@@ -7,7 +7,7 @@
             <div class="table-heading">
               <span class="panel-kicker">Order Ledger</span>
               <h3>订单管理</h3>
-              <p>查询本地订单账本，订单与交易所成交按账户、交易对和订单 ID 关联；交易对留空时，按本地订单/成交及当前持仓、活动订单涉及的交易对同步近 90 天历史。超过 3 天的无成交取消/过期订单可能已不再由交易所返回。</p>
+              <p>同步时会一起拉取近 90 天订单与逐笔成交，并补齐订单来源事实；交易对留空时，按当前账户已知交易对同步。</p>
             </div>
             <div class="toolbar-actions">
               <el-button
@@ -18,7 +18,7 @@
                 plain
                 type="primary"
                 @click="sync"
-              >同步订单</el-button>
+              >同步订单与成交</el-button>
               <el-button :loading="loading" icon="Refresh" plain @click="load">刷新</el-button>
             </div>
           </div>
@@ -210,6 +210,7 @@ const sync = async () => {
   try {
     await syncOrders(credentialId.value, symbol.value.trim() || undefined);
     await load();
+    modal.msgSuccess('订单与成交同步完成');
   } finally {
     syncing.value = false;
   }
