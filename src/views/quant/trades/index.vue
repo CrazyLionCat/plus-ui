@@ -8,17 +8,18 @@
               <div class="table-heading">
                 <span class="panel-kicker">Trade Facts</span>
                 <h3>成交记录</h3>
-                <p>查询交易所成交事实，并支持按账户和交易对同步。</p>
+                <p>同步时会一起拉取近 90 天订单与逐笔成交，并补齐订单来源事实；交易对留空时，按当前账户已知交易对同步。</p>
               </div>
               <el-button
                 v-hasPermi="['quant:trade:sync']"
-                :loading="loading"
+                :disabled="!credentialId || credentialId === 'ALL'"
+                :loading="syncing"
                 icon="Refresh"
                 plain
                 type="primary"
                 @click="sync"
               >
-                同步成交
+                同步订单与成交
               </el-button>
             </div>
           </template>
@@ -85,6 +86,7 @@ import { ensureQuantSymbolTickSizes, formatQuantQuantity, formatQuantTablePrice 
 import modal from '@/plugins/modal';
 
 const loading = ref(false);
+const syncing = ref(false);
 const credentials = ref<CredentialVO[]>([]);
 const rows = ref<TradeRecord[]>([]);
 const total = ref(0);
@@ -131,9 +133,15 @@ const handleCredentialChange = () => {
   load();
 };
 const sync = async () => {
-  if (!credentialId.value || credentialId.value === 'ALL') return modal.msgWarning('请先选择账户并输入交易对');
-  await syncTrades(credentialId.value, symbol.value);
-  await load();
+  if (!credentialId.value || credentialId.value === 'ALL') return modal.msgWarning('请先选择具体交易账户');
+  syncing.value = true;
+  try {
+    await syncTrades(credentialId.value, symbol.value.trim() || undefined);
+    await load();
+    modal.msgSuccess('订单与成交同步完成');
+  } finally {
+    syncing.value = false;
+  }
 };
 onMounted(async () => {
   await loadCredentials();
