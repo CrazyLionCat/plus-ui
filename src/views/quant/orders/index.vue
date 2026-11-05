@@ -7,12 +7,12 @@
             <div class="table-heading">
               <span class="panel-kicker">Order Ledger</span>
               <h3>订单管理</h3>
-              <p>查询本地订单账本，订单与交易所成交按账户、交易对和订单 ID 关联；普通接口最多查询近 90 天，超过 3 天的无成交取消/过期订单可能已不再由交易所返回。</p>
+              <p>查询本地订单账本，订单与交易所成交按账户、交易对和订单 ID 关联；交易对留空时，按本地订单/成交及当前持仓、活动订单涉及的交易对同步近 90 天历史。超过 3 天的无成交取消/过期订单可能已不再由交易所返回。</p>
             </div>
             <div class="toolbar-actions">
               <el-button
                 v-hasPermi="['quant:order:sync']"
-                :disabled="credentialId === 'ALL' || !symbol.trim()"
+                :disabled="credentialId === 'ALL'"
                 :loading="syncing"
                 icon="Refresh"
                 plain
@@ -205,10 +205,10 @@ const handleQuery = () => {
   load();
 };
 const sync = async () => {
-  if (credentialId.value === 'ALL' || !symbol.value.trim()) return modal.msgWarning('请先选择具体交易账户并输入交易对');
+  if (credentialId.value === 'ALL') return modal.msgWarning('请先选择具体交易账户');
   syncing.value = true;
   try {
-    await syncOrders(credentialId.value, symbol.value.trim());
+    await syncOrders(credentialId.value, symbol.value.trim() || undefined);
     await load();
   } finally {
     syncing.value = false;
