@@ -11,7 +11,7 @@
             </div>
             <div class="toolbar-actions">
               <el-button
-                v-hasPermi="['quant:order:sync']"
+                v-if="canSyncTradingData"
                 :disabled="credentialId === 'ALL'"
                 :loading="syncing"
                 icon="Refresh"
@@ -146,7 +146,11 @@ import type { CredentialVO, OrderLedgerRow, TradeRecord } from '@/api/quant/type
 import { cancelOrder, listAccessibleOrders, listAccessibleTrades, listCredential, syncOrders } from '@/api/quant';
 import { ensureQuantSymbolTickSizes, formatQuantTablePrice } from '../components/price-format';
 import modal from '@/plugins/modal';
+import { useUserStore } from '@/store/modules/user';
 
+const userStore = useUserStore();
+const canSyncTradingData = computed(() => userStore.permissions.includes('*:*:*')
+  || userStore.permissions.includes('quant:order:sync') && userStore.permissions.includes('quant:trade:sync'));
 const loading = ref(false);
 const syncing = ref(false);
 const credentials = ref<CredentialVO[]>([]);
