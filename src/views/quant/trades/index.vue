@@ -11,7 +11,7 @@
                 <p>同步时会一起拉取近 90 天订单与逐笔成交，并补齐订单来源事实；交易对留空时，按当前账户已知交易对同步。超过 3 天的无成交取消/过期订单可能已不再由交易所返回。</p>
               </div>
               <el-button
-                v-hasPermi="['quant:trade:sync']"
+                v-if="canSyncTradingData"
                 :disabled="!credentialId || credentialId === 'ALL'"
                 :loading="syncing"
                 icon="Refresh"
@@ -84,7 +84,11 @@ import { listAccessibleTrades, listCredential, syncTrades } from '@/api/quant';
 import { displayDecimal } from '../components/ledger-display';
 import { ensureQuantSymbolTickSizes, formatQuantQuantity, formatQuantTablePrice } from '../components/price-format';
 import modal from '@/plugins/modal';
+import { useUserStore } from '@/store/modules/user';
 
+const userStore = useUserStore();
+const canSyncTradingData = computed(() => userStore.permissions.includes('*:*:*')
+  || userStore.permissions.includes('quant:order:sync') && userStore.permissions.includes('quant:trade:sync'));
 const loading = ref(false);
 const syncing = ref(false);
 const credentials = ref<CredentialVO[]>([]);
