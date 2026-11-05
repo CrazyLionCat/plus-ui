@@ -72,8 +72,8 @@ export const listAccessibleOrders = (
   query: PageQuery & { side?: string; status?: string }
 ): AxiosPromise<PageResult<OrderLedgerRow>> =>
   request({ url: '/quant/order/ledger/page', method: 'get', params: { credentialId, symbol, ...query } });
-export const syncOrders = (credentialId: string | number, symbol: string) =>
-  request({ url: `/quant/order/${credentialId}/sync`, method: 'post', params: { symbol } });
+export const syncOrders = (credentialId: string | number, symbol?: string) =>
+  request({ url: `/quant/order/${credentialId}/sync`, method: 'post', params: symbol ? { symbol } : undefined });
 export const listProtectionOrders = (
   credentialId: string | number,
   symbol?: string,
