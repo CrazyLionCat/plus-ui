@@ -74,7 +74,7 @@ const columns = [
     ...centered,
     width: 120,
   },
-  { prop: 'entryPrice', label: '开仓价', ...centered, width: 100,formatter: (row: Record<string, unknown>) => price(row.entryPrice) },
+  { prop: 'entryPrice', label: '开仓价', ...centered, width: 100,formatter: (row: Record<string, unknown>) => amount(row.entryPrice) },
   { prop: 'openingNotional', label: '开仓名义金额(U)', ...centered, formatter: (row: Record<string, unknown>) => decimal(row.openingNotional) },
   /*{
     prop: 'leverage',

@@ -88,7 +88,7 @@
         </el-option>
       </el-select>
     </el-form-item>
-    <el-table :data="rows" border max-height="360" class="symbol-config-table">
+    <el-table :data="rows" border max-height="285" class="symbol-config-table">
       <el-table-column label="序号" type="index" width="60" align="center" />
       <el-table-column label="交易对" min-width="110">
         <template #default="scope">
