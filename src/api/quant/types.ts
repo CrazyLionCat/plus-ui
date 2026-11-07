@@ -107,6 +107,7 @@ export interface OrderSnapshot {
   originalQuantity: string;
   executedQuantity: string;
   updateTime: string;
+  averagePrice?: string;
 }
 export interface OrderLedgerRow {
   id: string | number;
@@ -120,6 +121,7 @@ export interface OrderLedgerRow {
   reduceOnly?: boolean | null;
   type: string;
   price: string | number;
+  averagePrice?: string | number | null;
   originalQuantity: string | number;
   executedQuantity: string | number;
   tradeCount: number;
