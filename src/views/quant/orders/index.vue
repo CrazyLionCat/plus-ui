@@ -79,7 +79,7 @@
         </el-table-column>
         <el-table-column label="类型" width="105" prop="type" />
         <el-table-column label="价格" min-width="120">
-          <template #default="scope">{{ formatQuantTablePrice(scope.row.symbol, scope.row.price) }}</template>
+          <template #default="scope">{{ formatOrderPrice(scope.row) }}</template>
         </el-table-column>
         <el-table-column label="委托数量" min-width="110" prop="originalQuantity" />
         <el-table-column label="已成交数量" min-width="120" prop="executedQuantity" />
@@ -183,6 +183,11 @@ const formatTime = (value?: string) => {
   const normalized = value.endsWith('Z') || /[+-]\d{2}:?\d{2}$/.test(value) ? value : `${value.replace(' ', 'T')}Z`;
   const date = new Date(normalized);
   return Number.isNaN(date.getTime()) ? value : timeFormatter.format(date);
+};
+const formatOrderPrice = (row: OrderLedgerRow) => {
+  const isMarketOrder = row.type === 'MARKET' || row.type.endsWith('_MARKET');
+  const price = isMarketOrder ? row.averagePrice : row.price;
+  return price == null || price === '' ? '—' : formatQuantTablePrice(row.symbol, price);
 };
 const loadCredentials = async () => {
   credentials.value = (await listCredential({ pageNum: 1, pageSize: 100 })).data?.rows || [];
