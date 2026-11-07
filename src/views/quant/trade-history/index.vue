@@ -68,12 +68,7 @@ const centered = { align: 'center' as const, headerAlign: 'center' as const };
 const columns = [
   { prop: 'accountName', label: '客户名称', ...centered, width: 120 },
   { prop: 'symbol', label: '交易对', ...centered, minWidth: 100 },
-  {
-    prop: 'direction',
-    label: '开仓方向',
-    ...centered,
-    width: 120,
-  },
+  /*{ prop: 'direction', label: '开仓方向', ...centered, width: 120 },*/
   { prop: 'entryPrice', label: '开仓价', ...centered, width: 100,formatter: (row: Record<string, unknown>) => amount(row.entryPrice) },
   { prop: 'openingNotional', label: '开仓名义金额(U)', ...centered, formatter: (row: Record<string, unknown>) => decimal(row.openingNotional) },
   /*{

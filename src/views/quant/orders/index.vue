@@ -94,7 +94,7 @@
         <el-table-column label="更新时间" min-width="165">
           <template #default="scope">{{ formatTime(scope.row.updateTime) }}</template>
         </el-table-column>
-        <el-table-column fixed="right" label="操作" width="90">
+        <!--<el-table-column fixed="right" label="操作" width="90">
           <template #default="scope">
             <el-button
               v-if="['NEW', 'PARTIALLY_FILLED'].includes(scope.row.status) && scope.row.orderId"
@@ -104,7 +104,7 @@
               @click="cancel(scope.row)"
             >撤单</el-button>
           </template>
-        </el-table-column>
+        </el-table-column>-->
       </el-table>
       <pagination
         v-show="total > 0"
