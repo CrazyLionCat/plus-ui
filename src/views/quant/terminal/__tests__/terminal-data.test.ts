@@ -11,6 +11,7 @@ import {
   mergeTrades,
   parseBinanceAccountEvent,
   positionMetrics,
+  aggregateLivePositionPnl,
   positionMaximumReturnRate,
   protectionPrices,
   protectionPriceLines,
@@ -182,6 +183,21 @@ describe('terminal account data', () => {
   it('keeps server PnL until an actual mark arrives', () => {
     expect(positionMetrics({ ...position, unrealizedPnl: '0.9' }).unrealizedPnl).toBe(0.9);
     expect(positionMetrics(position, 2.02).unrealizedPnl).toBeCloseTo(2);
+  });
+  it('sums PnL from fresh marks across all open positions', () => {
+    const second = { ...position, symbol: 'ETHUSDT', side: 'SHORT', quantity: '-2', entryPrice: '100', markPrice: '99' };
+    const marks = new Map([
+      ['PUMPUSDT', { price: '2.02', receivedAt: 10000 }],
+      ['ETHUSDT', { price: '99', receivedAt: 10000 }]
+    ]);
+    expect(aggregateLivePositionPnl([position, second], marks, 10000)).toBeCloseTo(4);
+  });
+  it('does not treat a missing or stale position mark as zero PnL', () => {
+    expect(aggregateLivePositionPnl([position], new Map(), 10000)).toBeUndefined();
+    expect(aggregateLivePositionPnl([position], new Map([['PUMPUSDT', { price: '2.02', receivedAt: 6000 }]]), 10000)).toBeUndefined();
+  });
+  it('returns zero only for a verified empty position list', () => {
+    expect(aggregateLivePositionPnl([], new Map(), 10000)).toBe(0);
   });
   it('values a negative BOTH position as short', () => {
     const result = positionMetrics({ ...position, side: 'BOTH', quantity: '-100' }, 1.98);

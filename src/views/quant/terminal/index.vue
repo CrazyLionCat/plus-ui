@@ -88,7 +88,7 @@
                 <dt>可用余额</dt>
                 <dd>{{ formatFixed(account.availableBalance, 2) }}</dd>
                 <dt>未实现盈亏</dt>
-                <dd>{{ formatFixed(account.unrealizedPnl, 2) }}</dd>
+                <dd>{{ currentUnrealizedPnl === undefined ? '—' : formatFixed(currentUnrealizedPnl, 2) }}</dd>
                 <dt>当天总收益率</dt>
                 <dd>{{ dailyReturnRate === undefined ? '—' : `${formatFixed(dailyReturnRate, 2)}%` }}</dd>
               </dl>
@@ -385,7 +385,7 @@ import {
 import {
   accountTrade, parseBinanceAccountEvent, liveTradePage, protectionPrices, protectionPriceLines,
   updateProtectionOrders, mergeAccountPosition, mergePositionSnapshots, mergePositionSymbolSnapshot,
-  positionSnapshotKey, mergeTrades, positionMetrics, positionMaximumReturnRate,
+  positionSnapshotKey, mergeTrades, positionMetrics, positionMaximumReturnRate, aggregateLivePositionPnl,
   terminalMarketSubscriptions, chunkSlopeSubscriptions, updateOrders, exactCloseQuantity,
   calculateRealtimeSlope, slopeStreamQuery
 } from './terminal-data';
@@ -409,6 +409,7 @@ const now = ref(Date.now());
 
 const dailyBaselineDay = ref('');
 let dailyBaselineRefreshTimer: ReturnType<typeof setTimeout> | undefined;
+let dailyBaselineRequest = 0;
 const credentials = ref<CredentialVO[]>([]);
 const strategies = ref<StrategyVO[]>([]);
 const account = ref<AccountSnapshot>();
@@ -500,6 +501,38 @@ let viewportSnapshot: ViewportSnapshot = { isRightEdge: true };
 
 // ==================== 工具函数 ====================
 const shanghaiDateKey = (timestamp: number) => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Shanghai' }).format(timestamp);
+function scheduleDailyBaselineRetry(id: string | number, day: string, generation: number) {
+  if (dailyBaselineRefreshTimer) clearTimeout(dailyBaselineRefreshTimer);
+  const remaining = Date.parse(`${day}T00:05:00+08:00`) - now.value;
+  if (remaining <= 0) return;
+  dailyBaselineRefreshTimer = setTimeout(() => {
+    void refreshDailyBaseline(id, day, generation);
+  }, Math.min(30000, remaining));
+}
+
+async function refreshDailyBaseline(id: string | number, day: string, generation: number) {
+  const request = ++dailyBaselineRequest;
+  try {
+    const response = await getDailyAccountBaseline(id);
+    if (
+      request !== dailyBaselineRequest ||
+      generation !== dataGeneration ||
+      String(credentialId.value) !== String(id) ||
+      dailyBaselineDay.value !== day ||
+      shanghaiDateKey(now.value) !== day
+    ) return;
+    dailyAccountBaseline.value = response.data;
+    if (!response.data) scheduleDailyBaselineRetry(id, day, generation);
+  } catch {
+    if (
+      request === dailyBaselineRequest &&
+      generation === dataGeneration &&
+      String(credentialId.value) === String(id) &&
+      dailyBaselineDay.value === day &&
+      shanghaiDateKey(now.value) === day
+    ) scheduleDailyBaselineRetry(id, day, generation);
+  }
+}
 const format = (v: any) => {
   if (v === undefined || v === null || v === '') return '-';
   const text = String(v);
@@ -526,13 +559,20 @@ const strategySymbolToggleKey = (item: StrategyInstanceVO) => `${String(item.str
 const indicatorOptions = computed(() => quant_indicator.value || []);
 const indicatorNames = computed<Record<string, string>>(() => Object.fromEntries(indicatorOptions.value.map((item: any) => [item.value, item.label])));
 
+const currentUnrealizedPnl = computed(() =>
+  accountSnapshotAvailable.value
+    ? aggregateLivePositionPnl(positions.value, positionMarketMarks.value, now.value)
+    : undefined
+);
+const currentAccountEquity = computed(() => {
+  const walletBalance = Number(account.value?.walletBalance);
+  if (currentUnrealizedPnl.value === undefined || !Number.isFinite(walletBalance)) return undefined;
+  return walletBalance + currentUnrealizedPnl.value;
+});
 const dailyReturnRate = computed(() => {
   const baseline = Number(dailyAccountBaseline.value?.equity);
-  const walletBalance = Number(account.value?.walletBalance);
-  const currentUnrealizedPnl = positionRows.value.reduce((sum, row) => sum + Number(row.unrealizedPnl || 0), 0);
-  const currentEquity = Number.isFinite(walletBalance) ? walletBalance + currentUnrealizedPnl : Number(account.value?.marginBalance);
-  if (!Number.isFinite(baseline) || baseline <= 0 || !Number.isFinite(currentEquity)) return undefined;
-  return ((currentEquity - baseline) / baseline) * 100;
+  if (!Number.isFinite(baseline) || baseline <= 0 || currentAccountEquity.value === undefined) return undefined;
+  return ((currentAccountEquity.value - baseline) / baseline) * 100;
 });
 
 const candleCountdown = computed(() => {
@@ -1132,6 +1172,20 @@ watch(
   }
 );
 
+watch(
+  () => shanghaiDateKey(now.value),
+  day => {
+    if (day === dailyBaselineDay.value) return;
+    dailyBaselineDay.value = day;
+    dailyAccountBaseline.value = null;
+    dailyBaselineRequest++;
+    if (dailyBaselineRefreshTimer) clearTimeout(dailyBaselineRefreshTimer);
+    if (credentialId.value !== undefined) {
+      void refreshDailyBaseline(credentialId.value, day, dataGeneration);
+    }
+  }
+);
+
 function applyRawAccountEvent(rawJson: string | undefined) {
   if (!rawJson) return;
   try {
@@ -1570,11 +1624,15 @@ async function loadData() {
   const id = credentialId.value;
   const baselineDay = shanghaiDateKey(now.value);
   dailyBaselineDay.value = baselineDay;
+  dailyAccountBaseline.value = null;
+  dailyBaselineRequest++;
+  if (dailyBaselineRefreshTimer) clearTimeout(dailyBaselineRefreshTimer);
 
   klines.value = [];
   symbolInfo.value = undefined;
   price.value = undefined;
   positions.value = [];
+  account.value = undefined;
   positionHistories.value = [];
   positionMarketMarks.value = new Map();
   accountSnapshotAvailable.value = false;
@@ -1637,7 +1695,14 @@ async function loadData() {
     ordersError.value = o.status === 'rejected' ? queryError(o.reason, '委托加载失败') : '';
     tradesError.value = t.status === 'rejected' ? queryError(t.reason, '成交记录加载失败') : '';
     if (a.status === 'fulfilled' && accountSnapshotRevision === accountRevision) account.value = a.value.data;
-    if (baseline.status === 'fulfilled' && dailyBaselineDay.value === baselineDay) dailyAccountBaseline.value = baseline.value.data;
+    if (dailyBaselineDay.value === baselineDay && String(credentialId.value) === String(id)) {
+      if (baseline.status === 'fulfilled') {
+        dailyAccountBaseline.value = baseline.value.data;
+        if (!baseline.value.data) scheduleDailyBaselineRetry(id, baselineDay, generation);
+      } else {
+        scheduleDailyBaselineRetry(id, baselineDay, generation);
+      }
+    }
     if (o.status === 'fulfilled' && accountSnapshotRevision === accountRevision) orders.value = o.value.data || [];
     if (t.status === 'fulfilled') {
       trades.value = mergeTrades(t.value.data?.rows || [], liveTrades.value);

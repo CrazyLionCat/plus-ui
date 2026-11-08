@@ -131,6 +131,27 @@ export function positionMetrics(item: PositionSnapshot, liveMark?: number | stri
   };
 }
 
+/** Sum unrealized PnL only when every open position has a fresh mark-price sample. */
+export function aggregateLivePositionPnl(
+  positions: ReadonlyArray<PositionSnapshot>,
+  marks: ReadonlyMap<string, { price: string; receivedAt: number }>,
+  now: number,
+  maxAgeMs = 3000
+): number | undefined {
+  let total = 0;
+  for (const position of positions) {
+    const quantity = numeric(position.quantity);
+    if (quantity === undefined) return undefined;
+    if (quantity === 0) continue;
+    const mark = marks.get(position.symbol.toUpperCase());
+    if (!mark || mark.receivedAt > now || now - mark.receivedAt > maxAgeMs) return undefined;
+    const pnl = positionMetrics(position, mark.price).unrealizedPnl;
+    if (pnl === undefined) return undefined;
+    total += pnl;
+  }
+  return total;
+}
+
 /** Return the highest Binance-style return-rate sample for this position cycle. */
 export function positionMaximumReturnRate(
   position: PositionSnapshot,
