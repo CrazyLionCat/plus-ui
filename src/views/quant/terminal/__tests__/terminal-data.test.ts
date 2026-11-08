@@ -192,9 +192,12 @@ describe('terminal account data', () => {
     ]);
     expect(aggregateLivePositionPnl([position, second], marks, 10000)).toBeCloseTo(4);
   });
-  it('does not treat a missing or stale position mark as zero PnL', () => {
+  it('does not treat a missing, stale or invalid position mark as live PnL', () => {
     expect(aggregateLivePositionPnl([position], new Map(), 10000)).toBeUndefined();
     expect(aggregateLivePositionPnl([position], new Map([['PUMPUSDT', { price: '2.02', receivedAt: 6000 }]]), 10000)).toBeUndefined();
+    for (const price of ['0', '-1', 'invalid']) {
+      expect(aggregateLivePositionPnl([position], new Map([['PUMPUSDT', { price, receivedAt: 10000 }]]), 10000)).toBeUndefined();
+    }
   });
   it('returns zero only for a verified empty position list', () => {
     expect(aggregateLivePositionPnl([], new Map(), 10000)).toBe(0);
