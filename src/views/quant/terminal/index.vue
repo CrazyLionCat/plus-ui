@@ -92,6 +92,7 @@
                 <dt>当天总收益率</dt>
                 <dd>{{ dailyReturnRate === undefined ? '—' : `${formatFixed(dailyReturnRate, 2)}%` }}</dd>
               </dl>
+              <small v-if="unrealizedPnlStale" class="fund-stale">行情暂未更新，显示最近一次有效估值</small>
             </div>
             <el-empty v-else description="暂无账户数据" />
           </el-card>
@@ -559,10 +560,30 @@ const strategySymbolToggleKey = (item: StrategyInstanceVO) => `${String(item.str
 const indicatorOptions = computed(() => quant_indicator.value || []);
 const indicatorNames = computed<Record<string, string>>(() => Object.fromEntries(indicatorOptions.value.map((item: any) => [item.value, item.label])));
 
-const currentUnrealizedPnl = computed(() =>
+const freshUnrealizedPnl = computed(() =>
   accountSnapshotAvailable.value
     ? aggregateLivePositionPnl(positions.value, positionMarketMarks.value, now.value)
     : undefined
+);
+const lastValidUnrealizedPnl = ref<number>();
+watch(freshUnrealizedPnl, value => {
+  if (value !== undefined) lastValidUnrealizedPnl.value = value;
+});
+watch(
+  () => positions.value.map(item => `${item.symbol}:${item.side}:${item.quantity}:${item.entryPrice}`).join('|'),
+  () => {
+    lastValidUnrealizedPnl.value = undefined;
+  },
+  { flush: 'sync' }
+);
+watch(accountSnapshotAvailable, available => {
+  if (!available) lastValidUnrealizedPnl.value = undefined;
+});
+const currentUnrealizedPnl = computed(() =>
+  accountSnapshotAvailable.value ? (freshUnrealizedPnl.value ?? lastValidUnrealizedPnl.value) : undefined
+);
+const unrealizedPnlStale = computed(() =>
+  accountSnapshotAvailable.value && freshUnrealizedPnl.value === undefined && lastValidUnrealizedPnl.value !== undefined
 );
 const currentAccountEquity = computed(() => {
   const walletBalance = Number(account.value?.walletBalance);
@@ -2239,6 +2260,12 @@ onBeforeUnmount(() => {
 }
 .fund > span {
   color: var(--el-text-color-secondary);
+}
+.fund-stale {
+  display: block;
+  margin-top: 8px;
+  color: var(--el-color-warning);
+  font-size: 12px;
 }
 .fund dl {
   display: grid;
