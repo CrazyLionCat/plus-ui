@@ -81,7 +81,7 @@
           <el-card shadow="never" class="side-card account-card">
             <template #header><b>账户资金</b></template>
             <div v-if="account" class="fund">
-              <strong>{{ formatFixed(account.marginBalance, 2) }} USDT</strong>
+              <strong>{{ currentAccountEquity === undefined ? '—' : formatFixed(currentAccountEquity, 2) + ' USDT' }}</strong>
               <dl>
                 <dt>钱包余额</dt>
                 <dd>{{ formatFixed(account.walletBalance, 2) }}</dd>
