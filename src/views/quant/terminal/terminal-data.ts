@@ -144,8 +144,9 @@ export function aggregateLivePositionPnl(
     if (quantity === undefined) return undefined;
     if (quantity === 0) continue;
     const mark = marks.get(position.symbol.toUpperCase());
-    if (!mark || mark.receivedAt > now || now - mark.receivedAt > maxAgeMs) return undefined;
-    const pnl = positionMetrics(position, mark.price).unrealizedPnl;
+    const markPrice = numeric(mark?.price);
+    if (!mark || markPrice === undefined || markPrice <= 0 || mark.receivedAt > now || now - mark.receivedAt > maxAgeMs) return undefined;
+    const pnl = positionMetrics(position, markPrice).unrealizedPnl;
     if (pnl === undefined) return undefined;
     total += pnl;
   }
