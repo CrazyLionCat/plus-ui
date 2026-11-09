@@ -289,7 +289,7 @@
       </el-card>
     </el-card>
 
-    <el-button class="slope-floating-button" type="primary" circle @click="openSlopePanel" aria-label="打开实时斜率">
+    <el-button v-hasPermi="['quant:terminal:slope']" class="slope-floating-button" type="primary" circle @click="openSlopePanel" aria-label="打开实时斜率">
       斜率
     </el-button>
     <el-drawer
