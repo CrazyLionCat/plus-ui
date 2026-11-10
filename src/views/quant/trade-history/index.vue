@@ -58,11 +58,17 @@ const timeFormatter = new Intl.DateTimeFormat('zh-CN', {
 const decimal = (value: unknown) => (value == null ? '—' : displayDecimal(value));
 const price = (value: unknown) => (value == null ? '—' : String(value));
 const amount = (value: unknown) => (value == null ? '—' : displayDecimal(value, 8));
+const fixedAmount = (value: unknown) => {
+  if (value == null) return '—';
+  const formatted = displayDecimal(value, 2);
+  if (!/^[+-]?\d+(?:\.\d+)?$/.test(formatted)) return formatted;
+  return formatted.includes('.') ? formatted.padEnd(formatted.indexOf('.') + 3, '0') : `${formatted}.00`;
+};
 const time = (value: unknown) => (value ? timeFormatter.format(new Date(String(value))) : '—');
 const balance = (value: unknown, checkedAt: unknown) => {
   if (value == null) return '—';
   const checked = checkedAt ? `（${time(checkedAt)}）` : '';
-  return `${String(value)}${checked}`;
+  return `${fixedAmount(value)}${checked}`;
 };
 const centered = { align: 'center' as const, headerAlign: 'center' as const };
 const columns = [
@@ -84,8 +90,8 @@ const columns = [
   { prop: 'realizedPnl', label: '盈亏', ...centered, width: 100,formatter: (row: Record<string, unknown>) => amount(row.realizedPnl) },
   { prop: 'commission', label: '手续费', ...centered, width: 180, formatter: (row: Record<string, unknown>) => displayCommission(row.commission) },
   { prop: 'closingEquity', label: '平仓后账户权益(U)', ...centered, width: 190, formatter: (row: Record<string, unknown>) => balance(row.closingEquity, row.closingEquityAt) },
-  { prop: 'walletBalance', label: '平仓后钱包余额(U)', ...centered, width: 170, formatter: (row: Record<string, unknown>) => amount(row.walletBalance) },
-  { prop: 'unrealizedPnl', label: '平仓后未实现盈亏(U)', ...centered, width: 190, formatter: (row: Record<string, unknown>) => amount(row.unrealizedPnl) },
+  { prop: 'walletBalance', label: '平仓后钱包余额(U)', ...centered, width: 170, formatter: (row: Record<string, unknown>) => fixedAmount(row.walletBalance) },
+  { prop: 'unrealizedPnl', label: '平仓后未实现盈亏(U)', ...centered, width: 190, formatter: (row: Record<string, unknown>) => fixedAmount(row.unrealizedPnl) },
   /*{ prop: 'closingBalance', label: '平仓余额U（核实时间）', ...centered, width: 230, formatter: (row: Record<string, unknown>) => balance(row.closingBalance, row.closingBalanceAt) },*/
   { prop: 'closedAt', label: '平仓时间', ...centered, width: 160, formatter: (row: Record<string, unknown>) => time(row.closedAt) }
 ];
