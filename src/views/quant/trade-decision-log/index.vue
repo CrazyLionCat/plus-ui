@@ -116,7 +116,7 @@
     </el-card>
     <el-dialog v-model="detailVisible" title="开平仓日志详情" width="850px" append-to-body>
       <el-alert v-if="detailError" :title="detailError" type="error" :closable="false" />
-      <el-descriptions v-loading="detailLoading" :column="2" border>
+      <el-descriptions v-loading="detailLoading" :column="2" border label-width="120">
         <el-descriptions-item v-for="field in detailFields" :key="field.key" :label="field.label">
           {{ detailValue(field.key) }}
         </el-descriptions-item>
@@ -242,7 +242,6 @@ const detailFields: Array<{ key: keyof TradeDecisionLog; label: string }> = [
   { key: 'amount', label: '名义金额（USDT）' },
   { key: 'price', label: '价格' },
   { key: 'reasonCode', label: '原因代码' },
-  { key: 'reason', label: '原因说明' },
   { key: 'eventTime', label: '首次评估时间' },
   { key: 'lastTime', label: '最后记录时间' },
   { key: 'tradeTime', label: '成交时间' },
@@ -250,7 +249,8 @@ const detailFields: Array<{ key: keyof TradeDecisionLog; label: string }> = [
   { key: 'repeatCount', label: '出现次数' },
   { key: 'orderId', label: '订单 ID' },
   { key: 'clientOrderId', label: '客户端订单号' },
-  { key: 'idempotencyKey', label: '执行关联标识' }
+  { key: 'idempotencyKey', label: '执行关联标识' },
+  { key: 'reason', label: '原因说明' }
 ];
 onMounted(load);
 onBeforeUnmount(() => {
