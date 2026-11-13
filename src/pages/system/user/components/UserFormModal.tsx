@@ -103,30 +103,29 @@ export default function UserFormModal({
           placeholder="请输入邮箱"
           rules={[{ type: 'email', message: '请输入正确的邮箱地址' }]}
         />
+        <ProFormText
+          name="userName"
+          label="用户名称"
+          hidden={!!editingUserId}
+          fieldProps={{ maxLength: 30 }}
+          placeholder="请输入用户名称"
+          rules={[
+            { required: true, message: '用户名称不能为空' },
+            { min: 2, max: 20, message: '用户名称长度必须介于 2 和 20 之间' }
+          ]}
+        />
         {!editingUserId && (
-          <>
-            <ProFormText
-              name="userName"
-              label="用户名称"
-              fieldProps={{ maxLength: 30 }}
-              placeholder="请输入用户名称"
-              rules={[
-                { required: true, message: '用户名称不能为空' },
-                { min: 2, max: 20, message: '用户名称长度必须介于 2 和 20 之间' }
-              ]}
-            />
-            <ProFormText.Password
-              name="password"
-              label="用户密码"
-              fieldProps={{ maxLength: 20 }}
-              placeholder="请输入用户密码"
-              rules={[
-                { required: true, message: '用户密码不能为空' },
-                { min: 5, max: 20, message: '用户密码长度必须介于 5 和 20 之间' },
-                { pattern: /^[^<>"'|\\]+$/, message: `不能包含非法字符：< > " ' \\ |` }
-              ]}
-            />
-          </>
+          <ProFormText.Password
+            name="password"
+            label="用户密码"
+            fieldProps={{ maxLength: 20 }}
+            placeholder="请输入用户密码"
+            rules={[
+              { required: true, message: '用户密码不能为空' },
+              { min: 5, max: 20, message: '用户密码长度必须介于 5 和 20 之间' },
+              { pattern: /^[^<>"'|\\]+$/, message: `不能包含非法字符：< > " ' \\ |` }
+            ]}
+          />
         )}
         <ProFormSelect name="gender" label="用户性别" allowClear options={genderOptions} placeholder="请选择" />
         <ProFormSelect name="status" label="状态" options={statusOptions} placeholder="请选择" />
