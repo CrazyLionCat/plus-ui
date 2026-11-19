@@ -9,8 +9,9 @@
           @toggle-click="toggleSideBar"
         />
       </div>
-      <router-link v-else-if="showLogo" to="/" class="navtop-logo-shell">
+      <router-link v-else-if="showLogo" to="/" class="navtop-logo">
         <img :src="appLogo" class="navtop-logo-icon" alt="logo" />
+        <span class="navtop-logo-title">{{ appTitle }}</span>
       </router-link>
 
       <div class="nav-context">
@@ -118,6 +119,7 @@ const noticeStore = storeToRefs(useNoticeStore());
 
 const navType = computed(() => settingsStore.navType);
 const showLogo = computed(() => settingsStore.sidebarLogo);
+const appTitle = import.meta.env.VITE_APP_LOGO_TITLE;
 const displayName = computed(() => userStore.nickname || '管理员');
 
 // 搜索菜单
@@ -171,48 +173,38 @@ const handleCommand = (command: string) => {
     flex: 1;
   }
 
-  .navtop-logo-shell {
-    width: 48px;
-    height: 40px;
+  .navtop-logo {
     display: inline-flex;
     align-items: center;
-    justify-content: center;
-    margin-right: 12px;
+    gap: 8px;
     flex-shrink: 0;
-    border-radius: 14px;
-    border: 1px solid var(--app-surface-border);
-    background: var(--app-surface-bg);
-    box-shadow: var(--app-shadow-sm);
-    transition:
-      transform 0.2s ease,
-      border-color 0.2s ease,
-      box-shadow 0.2s ease;
+    margin-right: 12px;
+    color: var(--app-text-title);
+    text-decoration: none;
+    transition: opacity 0.2s ease;
 
     &:hover {
-      transform: translateY(-1px);
-      border-color: rgba(64, 158, 255, 0.22);
-      box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.76),
-        0 10px 22px rgba(15, 23, 42, 0.08);
+      opacity: 0.82;
     }
   }
 
   .navtop-logo-icon {
-    width: 32px;
-    height: 32px;
-    display: block;
-    border-radius: 11px;
+    width: 30px;
+    height: 30px;
+    border-radius: 9px;
   }
 
+  .navtop-logo-title {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  // 菜单根元素自带 flex / 透明背景等样式，这里只需覆盖通用间距
   .topbar-container {
-    flex: 1;
-    min-width: 0;
     margin-left: 0;
-    padding: 4px 8px;
-    border-radius: var(--app-radius-base);
-    background: var(--app-surface-bg);
-    border: 1px solid var(--app-surface-border);
-    box-shadow: var(--app-shadow-sm);
   }
 }
 
@@ -452,22 +444,6 @@ const handleCommand = (command: string) => {
 }
 
 html.dark {
-  .navbar.navtop .navtop-logo-shell {
-    background: linear-gradient(180deg, rgba(15, 23, 42, 0.92), rgba(30, 41, 59, 0.82));
-    border-color: rgba(71, 85, 105, 0.42);
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.06),
-      0 8px 18px rgba(0, 0, 0, 0.24);
-  }
-
-  .navbar.navtop .topbar-container {
-    background: linear-gradient(180deg, rgba(15, 23, 42, 0.82), rgba(15, 23, 42, 0.7));
-    border-color: rgba(71, 85, 105, 0.34);
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.05),
-      0 8px 22px rgba(0, 0, 0, 0.2);
-  }
-
   .navbar .right-menu .right-menu-item,
   .navbar .right-menu .avatar-wrapper {
     background: var(--app-navbar-bg);
