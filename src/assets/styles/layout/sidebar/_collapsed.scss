@@ -1,4 +1,6 @@
-/* 桌面端折叠侧栏：窄宽、仅图标、子菜单箭头隐藏与 tooltip 触发区域（类名 .hideSidebar）。 */
+/* 桌面端折叠侧栏：窄宽、仅图标、子菜单箭头隐藏与 tooltip 触发区域（类名 .hideSidebar）。
+   注意：折叠样式必须收窄在 .sidebar-container 内部生效，否则顶栏（TopBar）里同样使用
+   SidebarItem 渲染的 .submenu-title-noDropdown 也会被波及，导致顶栏首页被压成 40px。 */
 
 #app {
   .hideSidebar {
@@ -15,7 +17,7 @@
       padding-right: 4px;
     }
 
-    .submenu-title-noDropdown {
+    .sidebar-container .submenu-title-noDropdown {
       padding: 0 !important;
       position: relative;
       height: 40px;
@@ -51,7 +53,7 @@
       }
     }
 
-    & .el-sub-menu {
+    .sidebar-container .el-sub-menu {
       overflow: hidden;
       border-radius: var(--app-radius-md);
 
@@ -77,7 +79,7 @@
       }
     }
 
-    .el-menu--collapse {
+    .sidebar-container .el-menu--collapse {
       > div > .el-sub-menu {
         width: 40px !important;
         min-width: 40px !important;
