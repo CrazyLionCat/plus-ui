@@ -196,8 +196,11 @@ const handleLogin = () => {
       const [err] = await to(userStore.login(loginForm.value));
       if (!err) {
         const redirectUrl = redirect.value || '/';
-        await router.push(redirectUrl);
-        loading.value = false;
+        try {
+          await router.push(redirectUrl);
+        } finally {
+          loading.value = false;
+        }
       } else {
         loading.value = false;
         if (captchaEnabled.value) {
