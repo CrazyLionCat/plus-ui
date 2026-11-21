@@ -63,19 +63,20 @@
   .tree-panel-col,
   .tree-content-col {
     min-width: 0;
-    transition:
-      max-width 0.24s ease,
-      flex-basis 0.24s ease;
   }
 
+  // 收起态：树列收缩为 0（卡片本体在组件内隐藏），内容列占满剩余宽度。
+  // 不使用宽度过渡，避免展开/收起瞬间两列宽度和超过 100% 触发 el-row 换行抖动。
   .tree-panel-col.is-collapsed {
-    max-width: 56px;
-    flex: 0 0 56px;
+    flex: 0 0 0;
+    width: 0;
+    min-width: 0;
+    max-width: 0;
   }
 
   .tree-content-col.is-tree-collapsed {
-    max-width: calc(100% - 56px);
-    flex: 0 0 calc(100% - 56px);
+    flex: 1 1 0%;
+    max-width: 100%;
   }
 
   .tree-panel-shell,

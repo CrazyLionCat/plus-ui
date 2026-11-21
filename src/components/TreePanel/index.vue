@@ -5,6 +5,16 @@
     class="tree-panel-col"
     :class="{ 'is-collapsed': modelCollapsed }"
   >
+    <!-- 收起态展开按钮：始终显示在内容区左边缘，点击展开树面板 -->
+    <button
+      v-if="modelCollapsed"
+      class="tree-expand-float"
+      type="button"
+      :title="`展开${title}`"
+      @click="toggleCollapsed"
+    >
+      <el-icon><DArrowRight /></el-icon>
+    </button>
     <el-card shadow="hover" class="side-panel tree-panel-shell" :class="{ 'is-collapsed': modelCollapsed }">
       <template #header>
         <div
@@ -207,14 +217,6 @@ $mobile-breakpoint: 900px;
 
 .tree-panel-col {
   min-width: 0;
-  transition:
-    max-width 0.24s ease,
-    flex-basis 0.24s ease;
-}
-
-.tree-panel-col.is-collapsed {
-  max-width: 56px;
-  flex: 0 0 56px;
 }
 
 .tree-panel-shell,
@@ -256,21 +258,53 @@ $mobile-breakpoint: 900px;
   transform: rotate(135deg);
 }
 
-.tree-panel-header.is-collapsed {
-  justify-content: center;
+// 收起态：卡片退出渲染，树列收缩为 0 宽但仍作为悬浮按钮的定位参照。
+// padding 需覆盖 el-row gutter 的 inline 值，避免残留 10px 间隙导致换行。
+.tree-panel-col.is-collapsed {
+  position: relative;
+  flex: 0 0 0;
+  width: 0;
+  min-width: 0;
+  max-width: 0;
+  padding: 0 !important;
 }
 
-.side-panel.is-collapsed :deep(.el-card__body) {
+.tree-panel-shell.is-collapsed {
   display: none;
 }
 
-.tree-panel-shell.is-collapsed :deep(.el-card__header) {
-  padding: 12px 0 !important;
-}
+// 收起态展开按钮：无边框的低调把手，常驻显示在内容区左边缘垂直中间。
+.tree-expand-float {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 56px;
+  transform: translateY(-50%);
+  padding: 0;
+  border: 0;
+  border-radius: 0 var(--app-radius-md) var(--app-radius-md) 0;
+  background: var(--el-bg-color-overlay);
+  color: var(--el-text-color-regular);
+  cursor: pointer;
+  transition:
+    background 0.18s ease,
+    color 0.18s ease,
+    box-shadow 0.18s ease;
 
-.tree-panel-shell.is-collapsed .tree-panel-header::after {
-  margin-left: 0;
-  transform: rotate(-45deg);
+  .el-icon {
+    font-size: 15px;
+  }
+
+  &:hover {
+    background: var(--app-accent-soft);
+    color: var(--app-accent-strong);
+    box-shadow: var(--el-box-shadow-light);
+  }
 }
 
 .dept-tree-wrap {
