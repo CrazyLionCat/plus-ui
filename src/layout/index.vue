@@ -4,8 +4,10 @@
     <side-bar v-if="showSidebar" class="sidebar-container" />
     <div :class="{ hasTagsView: needTagsView, sidebarHide: sidebar.hide }" class="main-container">
       <div :class="{ 'fixed-header': fixedHeader }" class="layout-header">
-        <navbar @set-layout="setLayout" />
-        <tags-view v-if="needTagsView" />
+        <div class="layout-header-card">
+          <navbar @set-layout="setLayout" />
+          <tags-view v-if="needTagsView" />
+        </div>
       </div>
       <app-main :class="{ 'with-fixed-header': fixedHeader, 'with-tags-view': needTagsView }" />
       <settings ref="settingRef" />
@@ -107,11 +109,16 @@ const setLayout = () => {
 .layout-header {
   position: relative;
   z-index: 9;
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
   padding: 12px 12px 0;
   background: transparent;
+}
+
+.layout-header-card {
+  background: var(--app-navbar-bg);
+  border-radius: var(--app-radius-base);
+  box-shadow:
+    var(--app-navbar-shadow),
+    inset 0 0 0 1px var(--app-navbar-border);
 }
 
 .fixed-header {

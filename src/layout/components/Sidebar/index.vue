@@ -61,8 +61,8 @@ const menuStyle = computed(() => ({
   height: 100%;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 10px 8px 12px;
+  gap: 0;
+  padding: 0 0 16px;
   border: 1px solid var(--app-sidebar-border);
   border-radius: var(--app-radius-base);
   box-shadow: var(--app-shadow-sm);
@@ -72,6 +72,7 @@ const menuStyle = computed(() => ({
 
 :deep(.el-scrollbar__view) {
   min-height: 0;
+  padding-top: 8px;
   padding-bottom: 12px;
 }
 

@@ -36,7 +36,7 @@
         :is-nest="true"
         :item="child"
         :popper-class="popperClass"
-        :base-path="resolvePath(child.path)"
+        :base-path="childBase(child.path)"
         class="nest-menu"
       />
     </el-sub-menu>
@@ -94,6 +94,14 @@ const hasOneShowingChild = (parent: RouteRecordRaw, children?: RouteRecordRaw[])
   }
 
   return false;
+};
+
+/** 分组目录不把自己的路径拼进子菜单地址。 */
+const childBase = (childPath: string) => {
+  if (typeof childPath === 'string' && childPath.startsWith('@')) {
+    return props.basePath;
+  }
+  return resolvePath(childPath);
 };
 
 const resolvePath = (routePath: string, routeQuery?: string): any => {

@@ -479,13 +479,10 @@ onBeforeUnmount(() => {
 <style lang="scss" scoped>
 .tags-view-container {
   display: flex;
-  align-items: flex-start;
-  height: 38px;
+  align-items: center;
+  height: 41px;
   width: 100%;
-  background-color: var(--app-surface-bg);
-  border: 1px solid var(--app-surface-border);
-  border-radius: var(--app-radius-md);
-  box-shadow: var(--app-shadow-sm);
+  border-top: 1px solid var(--app-navbar-border);
 
   $btn-width: 26px;
   $btn-hover-bg: var(--el-fill-color-light);
@@ -498,7 +495,6 @@ onBeforeUnmount(() => {
     justify-content: center;
     width: $btn-width;
     height: 26px;
-    margin-top: 4px;
     cursor: pointer;
     color: var(--app-text-muted);
     user-select: none;
@@ -533,6 +529,7 @@ onBeforeUnmount(() => {
   .tags-view-wrapper {
     flex: 1;
     min-width: 0;
+    height: 34px;
 
     .tags-view-item {
       display: inline-flex;
@@ -547,7 +544,6 @@ onBeforeUnmount(() => {
       padding: 0 8px;
       font-size: 12px;
       margin-left: 5px;
-      margin-top: 4px;
       border-radius: var(--app-radius-md);
       transition:
         box-shadow 0.2s ease,
@@ -602,7 +598,6 @@ onBeforeUnmount(() => {
     flex-shrink: 0;
     display: flex;
     align-items: center;
-    margin-top: 4px;
     margin-left: 4px;
   }
 
@@ -638,7 +633,6 @@ onBeforeUnmount(() => {
   .tags-refresh-btn {
     width: auto;
     font-size: 12px;
-    margin-top: 4px;
     margin-left: 8px;
     margin-right: 8px;
   }
@@ -704,6 +698,10 @@ body.tags-fullscreen-mode .drawer-bg,
 body.tags-fullscreen-mode .sidebar-container,
 body.tags-fullscreen-mode .navbar {
   display: none !important;
+}
+
+body.tags-fullscreen-mode .tags-view-container {
+  border-top: none;
 }
 
 .main-container.tags-fullscreen-mode {

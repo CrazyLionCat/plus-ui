@@ -48,6 +48,7 @@
             </el-popover>
           </div>
         </el-tooltip>
+
         <el-tooltip content="Github" effect="dark" placement="bottom">
           <ruo-yi-git id="ruoyi-git" class="right-menu-item hover-effect" />
         </el-tooltip>
@@ -71,11 +72,8 @@
       <div class="avatar-container">
         <el-dropdown class="avatar-dropdown" trigger="click" @command="handleCommand">
           <div class="avatar-wrapper">
-            <img :src="userStore.avatar" class="user-avatar" />
-            <div class="avatar-meta">
-              <span class="avatar-name">{{ displayName }}</span>
-              <span class="avatar-role">Workspace</span>
-            </div>
+            <img :src="userStore.avatar" class="user-avatar" alt="" />
+            <span class="avatar-name">{{ displayName }}</span>
             <el-icon class="avatar-arrow"><caret-bottom /></el-icon>
           </div>
           <template #dropdown>
@@ -178,7 +176,7 @@ const handleCommand = (command: string) => {
     align-items: center;
     gap: 8px;
     flex-shrink: 0;
-    margin-right: 12px;
+    margin: 0 12px 0 8px;
     color: var(--app-text-title);
     text-decoration: none;
     transition: opacity 0.2s ease;
@@ -213,8 +211,16 @@ const handleCommand = (command: string) => {
 }
 
 :deep(.el-badge__content.is-fixed) {
-  top: 8px;
-  right: 6px;
+  top: 2px;
+  right: auto;
+  left: 22px;
+  height: 16px;
+  line-height: 12px;
+  padding: 0 4px;
+  font-size: 10px;
+  border: 2px solid var(--app-navbar-bg);
+  box-sizing: border-box;
+  transform: none;
 }
 
 :deep(.el-badge) {
@@ -238,14 +244,10 @@ const handleCommand = (command: string) => {
   min-height: 52px;
   overflow: hidden;
   position: relative;
-  background: var(--app-navbar-bg);
-  border: 1px solid var(--app-navbar-border);
-  box-shadow: var(--app-navbar-shadow);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-radius: var(--app-radius-base);
-  padding: 6px 12px;
+  padding: 0 8px;
   box-sizing: border-box;
 
   .navbar-left {
@@ -258,15 +260,20 @@ const handleCommand = (command: string) => {
 
   .hamburger-shell {
     width: 36px;
-    height: 32px;
+    height: 36px;
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 12px;
     background: transparent;
-    color: var(--app-accent-strong);
+    color: var(--app-text-muted);
     flex-shrink: 0;
-    border: 1px solid var(--app-surface-border);
+    border: none;
+
+    &:hover {
+      background: var(--app-accent-soft);
+      color: var(--app-accent-strong);
+    }
   }
 
   .hamburger-container {
@@ -332,8 +339,8 @@ const handleCommand = (command: string) => {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      width: 32px;
-      height: 32px;
+      width: 36px;
+      height: 36px;
       font-size: 16px;
       color: var(--app-text-muted);
       border-radius: 12px;
@@ -386,51 +393,38 @@ const handleCommand = (command: string) => {
         position: relative;
         display: flex;
         align-items: center;
-        gap: 12px;
-        padding: 4px 8px 4px 4px;
-        border-radius: var(--app-radius-base);
-        background: var(--app-surface-bg);
-        border: 1px solid var(--app-surface-border);
+        gap: 8px;
+        height: 36px;
+        padding: 0 8px 0 4px;
+        border-radius: 999px;
+        background: transparent;
+        border: none;
         min-width: 0;
         cursor: pointer;
-        transition:
-          background 0.3s,
-          border-color 0.3s;
+        transition: background 0.3s;
 
         &:hover {
           background: var(--app-accent-soft);
-          border-color: rgba(64, 158, 255, 0.16);
         }
 
         .user-avatar {
           cursor: pointer;
           width: 28px;
           height: 28px;
-          border-radius: 12px;
+          border-radius: 50%;
           object-fit: cover;
           box-shadow: none;
         }
 
-        .avatar-meta {
-          display: flex;
-          flex-direction: column;
-          min-width: 0;
-          gap: 2px;
-        }
-
         .avatar-name {
-          max-width: 88px;
+          max-width: 112px;
           overflow: hidden;
           text-overflow: ellipsis;
           white-space: nowrap;
           color: var(--app-text-title);
-          font-size: 12px;
+          font-size: 13px;
           font-weight: 600;
-        }
-
-        .avatar-role {
-          color: var(--app-text-muted);
-          font-size: 11px;
+          line-height: 1.2;
         }
 
         .avatar-arrow {
@@ -440,14 +434,6 @@ const handleCommand = (command: string) => {
         }
       }
     }
-  }
-}
-
-html.dark {
-  .navbar .right-menu .right-menu-item,
-  .navbar .right-menu .avatar-wrapper {
-    background: var(--app-navbar-bg);
-    border-color: var(--app-navbar-border);
   }
 }
 </style>
