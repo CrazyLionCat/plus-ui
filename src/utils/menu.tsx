@@ -151,10 +151,11 @@ export function backendRoutesToMenu(routes: BackendRoute[] = [], parentPath = ''
     .filter(route => !route.hidden)
     .map(route => {
       const path = joinPath(parentPath, route.path);
+      const childBasePath = route.path.startsWith('@') ? parentPath : path;
       const visibleChildren = (route.children || []).filter(child => !child.hidden);
       if (visibleChildren.length === 1 && !route.alwaysShow && !visibleChildren[0].children?.length) {
         const child = visibleChildren[0];
-        const childPath = joinPath(path, child.path);
+        const childPath = joinPath(childBasePath, child.path);
         return {
           path: childPath,
           name: child.meta?.title || child.name || child.path,
@@ -163,7 +164,7 @@ export function backendRoutesToMenu(routes: BackendRoute[] = [], parentPath = ''
         };
       }
 
-      const children = visibleChildren.length ? backendRoutesToMenu(visibleChildren, path) : undefined;
+      const children = visibleChildren.length ? backendRoutesToMenu(visibleChildren, childBasePath) : undefined;
       return {
         path,
         name: route.meta?.title || route.name || route.path,
@@ -194,7 +195,7 @@ export function flattenBackendRoutes(
     const fullPath = joinPath(parentPath, route.path);
     result.push({ ...route, fullPath });
     if (route.children?.length) {
-      result.push(...flattenBackendRoutes(route.children, fullPath));
+      result.push(...flattenBackendRoutes(route.children, route.path.startsWith('@') ? parentPath : fullPath));
     }
   }
   return result;
