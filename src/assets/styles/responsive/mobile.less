@@ -20,6 +20,20 @@
     grid-template-columns: 1fr;
   }
 
+  .tree-table-page:has(.tree-panel-slot-react.is-collapsed) {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 0;
+  }
+
+  .tree-panel-slot-react.is-collapsed {
+    height: 0;
+  }
+
+  .tree-panel-slot-react.is-collapsed .tree-panel-expand-react {
+    top: 8px;
+    transform: none;
+  }
+
   .form-grid {
     grid-template-columns: 1fr;
   }

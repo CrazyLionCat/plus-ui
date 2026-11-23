@@ -4,8 +4,9 @@
   gap: 16px;
 }
 
-.tree-table-page:has(.tree-panel-react.is-collapsed) {
-  grid-template-columns: 48px minmax(0, 1fr);
+.tree-table-page:has(.tree-panel-slot-react.is-collapsed) {
+  grid-template-columns: 0 minmax(0, 1fr);
+  column-gap: 0;
 }
 
 .tree-panel,

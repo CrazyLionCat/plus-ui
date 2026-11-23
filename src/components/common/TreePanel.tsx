@@ -1,5 +1,5 @@
 import type { DataNode, EventDataNode } from 'antd/es/tree';
-import { LeftOutlined, SearchOutlined } from '@ant-design/icons';
+import { DoubleRightOutlined, LeftOutlined, SearchOutlined } from '@ant-design/icons';
 import { Button, Card, Input, Tree } from 'antd';
 import { useMemo, useState, type Key } from 'react';
 import { collectTreeKeys } from '@/utils/ruoyi';
@@ -108,43 +108,45 @@ export default function TreePanel<T extends object = Record<string, unknown>>({
   };
 
   return (
-    <Card
-      className={`tree-panel-react${mergedCollapsed ? ' is-collapsed' : ''}`}
-      title={mergedCollapsed ? null : title}
-      extra={
-        <Button
-          type="text"
-          size="small"
-          icon={<LeftOutlined rotate={mergedCollapsed ? 180 : 0} />}
+    <div className={`tree-panel-slot-react${mergedCollapsed ? ' is-collapsed' : ''}`}>
+      {mergedCollapsed && (
+        <button
+          type="button"
+          className="tree-panel-expand-react"
+          title={`展开${title}`}
+          aria-label={`展开${title}`}
           onClick={toggleCollapsed}
-        />
-      }
-    >
-      {!mergedCollapsed && (
-        <>
-          <Input
-            allowClear
-            prefix={<SearchOutlined />}
-            placeholder={placeholder}
-            value={filterText}
-            onChange={event => setFilterText(event.target.value)}
-          />
-          <Tree
-            className="tree-panel-tree-react"
-            treeData={treeData}
-            expandedKeys={expandedKeys}
-            onExpand={keys => setExpandedKeys(keys)}
-            blockNode
-            showLine
-            onSelect={(_, info) => {
-              const raw = (info.node as DataNode & { raw?: T }).raw;
-              if (raw) {
-                onNodeClick?.(raw, info.node);
-              }
-            }}
-          />
-        </>
+        >
+          <DoubleRightOutlined />
+        </button>
       )}
-    </Card>
+      <Card
+        className="tree-panel-react"
+        title={title}
+        extra={<Button type="text" size="small" icon={<LeftOutlined />} title={`收起${title}`} onClick={toggleCollapsed} />}
+      >
+        <Input
+          allowClear
+          prefix={<SearchOutlined />}
+          placeholder={placeholder}
+          value={filterText}
+          onChange={event => setFilterText(event.target.value)}
+        />
+        <Tree
+          className="tree-panel-tree-react"
+          treeData={treeData}
+          expandedKeys={expandedKeys}
+          onExpand={keys => setExpandedKeys(keys)}
+          blockNode
+          showLine
+          onSelect={(_, info) => {
+            const raw = (info.node as DataNode & { raw?: T }).raw;
+            if (raw) {
+              onNodeClick?.(raw, info.node);
+            }
+          }}
+        />
+      </Card>
+    </div>
   );
 }
