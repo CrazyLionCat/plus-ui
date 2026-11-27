@@ -49,15 +49,8 @@ router.beforeEach(async (to, from) => {
               router.addRoute(route); // 动态添加可访问路由表
             }
           });
-          // hack方法 确保addRoutes已完成
-          return {
-            path: to.path,
-            replace: true,
-            params: to.params,
-            query: to.query,
-            hash: to.hash,
-            name: to.name as string
-          };
+          // 注册动态路由后按路径重新匹配，保留原链接的查询参数和锚点。
+          return { path: to.path, query: to.query, hash: to.hash, replace: true };
         }
       } else {
         return true;
